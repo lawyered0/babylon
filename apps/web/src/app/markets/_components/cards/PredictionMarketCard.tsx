@@ -7,8 +7,11 @@ import {
 } from '@babylon/shared';
 import { ArrowUpDown } from 'lucide-react';
 import { memo } from 'react';
+import {
+  calculateSharePercentages,
+  getDaysLeft,
+} from '@/lib/market-formatters';
 import type { PredictionMarketWithPosition } from '@/types/markets';
-import { calculateSharePercentages, getDaysLeft } from '@/lib/market-formatters';
 
 interface PredictionMarketCardProps {
   prediction: PredictionMarketWithPosition;

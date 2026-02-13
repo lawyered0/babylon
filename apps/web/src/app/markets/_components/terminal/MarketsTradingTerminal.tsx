@@ -52,6 +52,7 @@ import type {
   PredictionTradeSSE,
 } from '@/hooks/usePredictionMarketStream';
 import { usePredictionMarketStream } from '@/hooks/usePredictionMarketStream';
+import { formatBalance } from '@/lib/market-formatters';
 import {
   type MarketKey,
   useMarketWatchlistStore,
@@ -82,7 +83,6 @@ import type {
   TradeSide,
 } from '@/types/markets';
 import { MARKET_TIME_RANGES } from '@/types/markets';
-import { formatBalance } from '@/lib/market-formatters';
 import { PerpsOrderEntryPanel } from '../perps-terminal/PerpsOrderEntryPanel';
 import { TerminalAgentsChat } from './TerminalAgentsChat';
 import { TerminalPortfolio } from './TerminalPortfolio';

@@ -30,12 +30,7 @@ import {
 } from '@babylon/shared';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import {
-  type Address,
-  encodeFunctionData,
-  type Hex,
-  pad,
-} from 'viem';
+import { type Address, encodeFunctionData, type Hex, pad } from 'viem';
 
 function marketIdToBytes32(marketId: string): `0x${string}` {
   const bigintValue = BigInt(marketId);
@@ -282,4 +277,3 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   return NextResponse.json({ success: true, ...result });
 });
-

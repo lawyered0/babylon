@@ -20,9 +20,9 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { formatPrice } from '@/lib/market-formatters';
 import { FollowButton } from '@/components/interactions';
 import { useAuth } from '@/hooks/useAuth';
+import { formatPrice } from '@/lib/market-formatters';
 import { usePerpMarketsStore } from '@/stores/perpMarketsStore';
 import { apiUrl } from '@/utils/api-url';
 

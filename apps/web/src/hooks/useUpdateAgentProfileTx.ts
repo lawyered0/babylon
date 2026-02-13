@@ -63,9 +63,7 @@ export function useUpdateAgentProfileTx() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(
-          data.error || `Update failed: ${response.status}`
-        );
+        throw new Error(data.error || `Update failed: ${response.status}`);
       }
 
       const { txHash } = await response.json();

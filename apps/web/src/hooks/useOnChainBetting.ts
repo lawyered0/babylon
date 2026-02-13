@@ -68,9 +68,7 @@ export function useOnChainBetting() {
 
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(
-            data.error || `Buy failed: ${response.status}`
-          );
+          throw new Error(data.error || `Buy failed: ${response.status}`);
         }
 
         const { txHash } = await response.json();
@@ -125,9 +123,7 @@ export function useOnChainBetting() {
 
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(
-            data.error || `Sell failed: ${response.status}`
-          );
+          throw new Error(data.error || `Sell failed: ${response.status}`);
         }
 
         const { txHash } = await response.json();

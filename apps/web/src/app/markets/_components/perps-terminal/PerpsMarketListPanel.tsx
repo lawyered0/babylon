@@ -3,9 +3,9 @@
 import { cn } from '@babylon/shared';
 import { ArrowDown, ArrowUp, Filter, Search, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { formatPrice, formatVolume } from '@/lib/market-formatters';
 import type { PerpMarket } from '@/types/markets';
 import { useWatchlistStore } from '../../_hooks/useWatchlistStore';
-import { formatPrice, formatVolume } from '@/lib/market-formatters';
 
 type SortKey =
   | 'ticker'

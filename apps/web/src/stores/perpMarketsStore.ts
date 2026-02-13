@@ -34,6 +34,7 @@ import { MARKETS_CONFIG } from '@/types/markets';
 
 // Re-export for backwards compatibility
 export type { PerpMarket } from '@/types/markets';
+
 import { apiUrl } from '@/utils/api-url';
 
 /**

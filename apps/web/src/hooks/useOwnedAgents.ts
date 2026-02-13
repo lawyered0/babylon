@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAuth } from './useAuth';
 import { apiUrl } from '@/utils/api-url';
+import { useAuth } from './useAuth';
 
 /**
  * Agent data structure for owned agents.

@@ -19,11 +19,11 @@ import {
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { formatPrice } from '@/lib/market-formatters';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnChainBetting } from '@/hooks/useOnChainBetting';
+import { formatPrice } from '@/lib/market-formatters';
 import { usePerpMarkets } from '@/stores/perpMarketsStore';
 import {
   type PredictionMarket,

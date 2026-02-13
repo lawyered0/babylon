@@ -139,7 +139,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         status: 'error',
-        error: 'Authentication required: no Privy token found. Please sign in and try again.',
+        error:
+          'Authentication required: no Privy token found. Please sign in and try again.',
         step,
         errorId,
       } satisfies MintNftResult,
@@ -294,4 +295,3 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       'Your NFT should appear shortly. You can track the transaction on a block explorer.',
   } satisfies MintNftResult);
 }
-

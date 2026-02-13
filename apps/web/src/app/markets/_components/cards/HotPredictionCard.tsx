@@ -1,8 +1,11 @@
 'use client';
 
 import { memo } from 'react';
+import {
+  calculateSharePercentages,
+  getDaysLeft,
+} from '@/lib/market-formatters';
 import type { PredictionMarket } from '@/types/markets';
-import { calculateSharePercentages, getDaysLeft } from '@/lib/market-formatters';
 
 interface HotPredictionCardProps {
   prediction: PredictionMarket;

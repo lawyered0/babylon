@@ -978,21 +978,24 @@ export function useTeamChat(): UseTeamChatReturn {
         const usePro = agent?.modelTier === 'pro';
 
         try {
-          const agentResponse = await fetch(apiUrl(`/api/agents/${agentId}/chat`), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              message: content,
-              usePro,
-              teamChatId: teamChat.chatId,
-              teamChatOwnerName: ownerName,
-              teamChatOwnerUsername: ownerUsername,
-            }),
-            signal: controller.signal,
-          });
+          const agentResponse = await fetch(
+            apiUrl(`/api/agents/${agentId}/chat`),
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                message: content,
+                usePro,
+                teamChatId: teamChat.chatId,
+                teamChatOwnerName: ownerName,
+                teamChatOwnerUsername: ownerUsername,
+              }),
+              signal: controller.signal,
+            }
+          );
 
           if (agentResponse.ok) {
             // Parse response to get points info and message content
@@ -1153,9 +1156,12 @@ export function useTeamChat(): UseTeamChatReturn {
     try {
       setConversationsLoading(true);
       const token = await getAccessToken();
-      const response = await fetch(apiUrl('/api/agents/team-chat/conversations'), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        apiUrl('/api/agents/team-chat/conversations'),
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.ok) {
         const data = (await response.json()) as {
@@ -1211,14 +1217,17 @@ export function useTeamChat(): UseTeamChatReturn {
 
       try {
         const token = await getAccessToken();
-        const response = await fetch(apiUrl('/api/agents/team-chat/conversations'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ title }),
-        });
+        const response = await fetch(
+          apiUrl('/api/agents/team-chat/conversations'),
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ title }),
+          }
+        );
 
         if (response.ok) {
           const data = (await response.json()) as {

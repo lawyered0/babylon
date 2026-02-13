@@ -38,4 +38,3 @@ export function apiUrl(path: string): string {
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${API_BASE_URL}${path}`;
 }
-
