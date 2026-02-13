@@ -1,8 +1,8 @@
 'use client';
 
+import { FeedClient } from '@web/app/feed/FeedClient';
 import { Suspense } from 'react';
 import { FeedSkeleton } from '@/components/shared/Skeleton';
-import { FeedClient } from '@web/app/feed/FeedClient';
 
 export default function MobileFeedPage() {
   return (
@@ -11,4 +11,3 @@ export default function MobileFeedPage() {
     </Suspense>
   );
 }
-

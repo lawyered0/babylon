@@ -9,4 +9,3 @@ import { HomePageClient } from '@web/app/HomePageClient';
 export default function MobileHomePage() {
   return <HomePageClient />;
 }
-

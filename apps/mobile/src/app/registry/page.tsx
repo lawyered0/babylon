@@ -10,4 +10,3 @@ export default function MobileRegistryRedirect() {
   }, [router]);
   return null;
 }
-

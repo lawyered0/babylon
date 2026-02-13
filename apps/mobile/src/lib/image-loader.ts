@@ -15,4 +15,3 @@ export default function imageLoader({
   // Local static assets — serve from the web app's deployment
   return `${API_BASE}${src}`;
 }
-
