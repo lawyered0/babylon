@@ -25,7 +25,10 @@ function detect(): PlatformInfo {
   if (origin.startsWith('capacitor://')) {
     return { isNative: true, platform: 'ios' };
   }
-  if (origin === 'https://localhost' && /Android/i.test(navigator.userAgent)) {
+  if (
+    origin === 'https://localhost' &&
+    /Android/i.test(window.navigator?.userAgent ?? '')
+  ) {
     return { isNative: true, platform: 'android' };
   }
 
