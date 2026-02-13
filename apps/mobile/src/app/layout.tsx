@@ -2,7 +2,8 @@
 
 import './globals.css';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Toaster } from 'sonner';
 import { FeedAuthBanner } from '@/components/auth/FeedAuthBanner';
 import { GlobalLoginModal } from '@/components/auth/GlobalLoginModal';
@@ -12,6 +13,7 @@ import { BottomNav } from '@/components/shared/BottomNav';
 import { MobileHeader } from '@/components/shared/MobileHeader';
 import { Sidebar } from '@/components/shared/Sidebar';
 import { AppUrlListener } from '@/mobile/components/AppUrlListener';
+import { initNativeFeatures, updateTheme } from '@/mobile/lib/native-init';
 
 /**
  * OAuth redirect URL for Capacitor.
@@ -44,7 +46,42 @@ export default function MobileRootLayout({
   children: React.ReactNode;
 }) {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+
+  const navigate = useCallback(
+    (path: string) => router.push(path),
+    [router]
+  );
+
   useEffect(() => setMounted(true), []);
+
+  // Initialize native Capacitor features once mounted
+  useEffect(() => {
+    if (!mounted) return;
+    // Detect theme from the document (next-themes sets data-theme attribute)
+    const theme =
+      document.documentElement.classList.contains('dark') ||
+      document.documentElement.getAttribute('data-theme') === 'dark'
+        ? 'dark'
+        : 'light';
+    initNativeFeatures({ theme, navigate });
+  }, [mounted, navigate]);
+
+  // Update status bar when theme changes
+  useEffect(() => {
+    if (!mounted) return;
+    const observer = new MutationObserver(() => {
+      const isDark =
+        document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark';
+      updateTheme(isDark ? 'dark' : 'light');
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
+    return () => observer.disconnect();
+  }, [mounted]);
 
   const privyConfigOverride = useMemo(
     () => ({
