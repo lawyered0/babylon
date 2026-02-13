@@ -11,6 +11,7 @@ import { Providers } from '@/components/providers/Providers';
 import { BottomNav } from '@/components/shared/BottomNav';
 import { MobileHeader } from '@/components/shared/MobileHeader';
 import { Sidebar } from '@/components/shared/Sidebar';
+import { AppUrlListener } from '@/mobile/components/AppUrlListener';
 
 /**
  * Mobile root layout — client-only version.
@@ -42,6 +43,9 @@ export default function MobileRootLayout({
         className="overscroll-none bg-background font-sans antialiased"
         suppressHydrationWarning
       >
+        {/* Privy OAuth deep link handler — must be before PrivyProvider */}
+        <AppUrlListener />
+
         {mounted ? (
           <Providers>
             <Toaster position="top-center" richColors />
