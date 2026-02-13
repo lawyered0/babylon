@@ -69,6 +69,9 @@ const PRODUCTION_ORIGINS = [
   'https://staging.babylon.market',
   'https://app.staging.babylon.market',
   'https://play.staging.babylon.market',
+  // Capacitor mobile app origins
+  'capacitor://localhost', // iOS
+  'https://localhost', // Android
 ] as const;
 
 /**
