@@ -18,7 +18,10 @@
  * - 404 — No matching entity
  */
 
-import { findUserByIdentifierWithSelect, withErrorHandling } from '@babylon/api';
+import {
+  findUserByIdentifierWithSelect,
+  withErrorHandling,
+} from '@babylon/api';
 import { users } from '@babylon/db';
 import { loadActorsData } from '@babylon/engine';
 import { extractUsername } from '@babylon/shared';
@@ -100,4 +103,3 @@ export const GET = withErrorHandling(
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
   }
 );
-

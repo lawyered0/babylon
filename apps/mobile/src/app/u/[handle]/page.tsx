@@ -1,9 +1,11 @@
-import { MobileUserProfileByHandlePage } from './client';
+'use client';
 
-export function generateStaticParams() {
-  return [{ handle: '_placeholder' }];
+import { useParams } from 'next/navigation';
+import { ProfilePageClient } from '@/components/profile/ProfilePageClient';
+
+export default function MobileUserProfileByHandlePage() {
+  const params = useParams();
+  const identifier = decodeURIComponent(params.handle as string);
+  return <ProfilePageClient identifier={identifier} mode="user" />;
 }
 
-export default function Page() {
-  return <MobileUserProfileByHandlePage />;
-}

@@ -1,9 +1,11 @@
-import { MobileActorProfilePage } from './client';
+'use client';
 
-export function generateStaticParams() {
-  return [{ id: '_placeholder' }];
+import { useParams } from 'next/navigation';
+import { ProfilePageClient } from '@/components/profile/ProfilePageClient';
+
+export default function MobileActorProfilePage() {
+  const params = useParams();
+  const identifier = decodeURIComponent(params.id as string);
+  return <ProfilePageClient identifier={identifier} mode="actor" />;
 }
 
-export default function Page() {
-  return <MobileActorProfilePage />;
-}

@@ -92,8 +92,7 @@ const nextConfig: NextConfig = {
       // Ignore server-only packages in client builds
       config.plugins.push(
         new webpack.IgnorePlugin({
-          resourceRegExp:
-            /^@babylon\/(api|db|engine|training|agents)(\/.*)?$/,
+          resourceRegExp: /^@babylon\/(api|db|engine|training|agents)(\/.*)?$/,
         }),
         new webpack.IgnorePlugin({
           resourceRegExp:
@@ -113,4 +112,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-

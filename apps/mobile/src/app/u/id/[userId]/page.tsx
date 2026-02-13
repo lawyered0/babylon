@@ -1,9 +1,11 @@
-import { MobileUserProfileByIdPage } from './client';
+'use client';
 
-export function generateStaticParams() {
-  return [{ userId: '_placeholder' }];
+import { useParams } from 'next/navigation';
+import { ProfilePageClient } from '@/components/profile/ProfilePageClient';
+
+export default function MobileUserProfileByIdPage() {
+  const params = useParams();
+  const identifier = decodeURIComponent(params.userId as string);
+  return <ProfilePageClient identifier={identifier} mode="user_id" />;
 }
 
-export default function Page() {
-  return <MobileUserProfileByIdPage />;
-}
