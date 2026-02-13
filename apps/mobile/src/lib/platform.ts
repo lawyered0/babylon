@@ -62,4 +62,3 @@ export function isIOS(): boolean {
 export function isAndroid(): boolean {
   return getPlatform() === 'android';
 }
-
