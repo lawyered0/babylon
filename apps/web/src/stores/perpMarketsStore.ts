@@ -34,6 +34,7 @@ import { MARKETS_CONFIG } from '@/types/markets';
 
 // Re-export for backwards compatibility
 export type { PerpMarket } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Partial update for market stats (from SSE events).
@@ -105,7 +106,7 @@ export const usePerpMarketsStore = create<PerpMarketsState>((set, get) => ({
       set({ error: null });
 
       try {
-        const response = await fetch('/api/markets/perps');
+        const response = await fetch(apiUrl('/api/markets/perps'));
         if (!response.ok) {
           throw new Error(`Failed to fetch perp markets: ${response.status}`);
         }

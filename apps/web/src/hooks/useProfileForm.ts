@@ -8,6 +8,7 @@ import type {
   UsernameStatus,
 } from '@/components/waitlist/types';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 interface UseProfileFormOptions {
   userId: string | undefined;
@@ -202,7 +203,7 @@ export function useProfileForm({
       formData.append('file', file);
       formData.append('type', 'profile');
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch(apiUrl('/api/upload'), {
         method: 'POST',
         body: formData,
       });
@@ -240,7 +241,7 @@ export function useProfileForm({
       formData.append('file', file);
       formData.append('type', 'banner');
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch(apiUrl('/api/upload'), {
         method: 'POST',
         body: formData,
       });

@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Options for configuring the useTransferPoints hook.
@@ -91,7 +92,7 @@ export function useTransferPoints(options: UseTransferPointsOptions = {}) {
     mutationFn: async (payload: TransferPointsPayload) => {
       const token = await resolveToken(getToken);
 
-      const response = await fetch('/api/points/transfer', {
+      const response = await fetch(apiUrl('/api/points/transfer'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

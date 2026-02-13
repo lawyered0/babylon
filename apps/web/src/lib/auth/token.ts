@@ -9,6 +9,7 @@
  * @example
  * ```ts
  * import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
  *
  * const token = getAuthToken();
  * if (!token) {
@@ -16,7 +17,7 @@
  *   return;
  * }
  *
- * await fetch('/api/protected', {
+ * await fetch(apiUrl('/api/protected'), {
  *   headers: { Authorization: `Bearer ${token}` }
  * });
  * ```

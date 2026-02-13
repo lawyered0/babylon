@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from './useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Agent data structure for owned agents.
@@ -76,7 +77,7 @@ export function useOwnedAgents(): UseOwnedAgentsReturn {
         return;
       }
 
-      const response = await fetch('/api/agents', {
+      const response = await fetch(apiUrl('/api/agents'), {
         headers: {
           Authorization: `Bearer ${token}`,
         },

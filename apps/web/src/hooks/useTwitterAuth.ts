@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/auth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Represents the current Twitter authentication status.
@@ -76,7 +77,7 @@ export function useTwitterAuth(): UseTwitterAuthReturn {
       return;
     }
 
-    const response = await fetch('/api/twitter/auth-status', {
+    const response = await fetch(apiUrl('/api/twitter/auth-status'), {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -133,7 +134,7 @@ export function useTwitterAuth(): UseTwitterAuthReturn {
     const token = getAuthToken();
     if (!token) return;
 
-    const response = await fetch('/api/twitter/disconnect', {
+    const response = await fetch(apiUrl('/api/twitter/disconnect'), {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     });

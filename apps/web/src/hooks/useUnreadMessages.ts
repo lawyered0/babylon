@@ -1,6 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Represents unread message counts.
@@ -61,7 +62,7 @@ export function useUnreadMessages() {
       const token = await getAccessToken();
       if (!token) return;
 
-      const response = await fetch('/api/chats/unread-count', {
+      const response = await fetch(apiUrl('/api/chats/unread-count'), {
         headers: {
           Authorization: `Bearer ${token}`,
         },

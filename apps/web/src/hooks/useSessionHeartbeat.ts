@@ -11,6 +11,7 @@ import { generateUUID } from '@babylon/shared';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 const SESSION_KEY_PREFIX = 'bab_session_id';
@@ -73,7 +74,7 @@ export function useSessionHeartbeat(): void {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      void fetch('/api/activity/heartbeat', {
+      void fetch(apiUrl('/api/activity/heartbeat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

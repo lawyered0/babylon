@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Agent0 profile data structure
@@ -68,7 +69,7 @@ export function useAgent0Reputation(
 
     try {
       // Fetch agent details which includes Agent0 registration info
-      const response = await fetch(`/api/agents/${agentId}`);
+      const response = await fetch(apiUrl(`/api/agents/${agentId}`));
 
       if (!response.ok) {
         if (response.status === 404) {

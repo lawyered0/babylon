@@ -24,6 +24,7 @@
  */
 
 import { logger } from '@babylon/shared';
+import { apiUrl } from '@/utils/api-url';
 
 // ============================================================================
 // Types
@@ -955,7 +956,7 @@ export class SSEManager {
       if (!accessToken) return null;
       if (epoch !== this.authEpoch) return null;
 
-      const res = await fetch('/api/realtime/token', {
+      const res = await fetch(apiUrl('/api/realtime/token'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
