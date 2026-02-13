@@ -35,6 +35,7 @@ export type {
   SSEMessage,
   StaticChannel,
 } from '@/lib/sse';
+
 import { apiUrl } from '@/utils/api-url';
 
 // Simple console logger for client-side SSE
@@ -334,7 +335,7 @@ async function ensureConnection(forceReconnect = false) {
       ? `&cursor=${encodeURIComponent(JSON.stringify(cursorPayload))}`
       : '';
 
-  const url = `${window.location.origin}/api/sse/events?channels=${encodeURIComponent(
+  const url = `${apiUrl('/api/sse/events')}?channels=${encodeURIComponent(
     channelsList.join(',')
   )}&token=${encodeURIComponent(token)}${cursorParam}`;
 

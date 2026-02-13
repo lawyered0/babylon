@@ -710,8 +710,9 @@ export class SSEManager {
         ? `&cursor=${encodeURIComponent(JSON.stringify(cursorPayload))}`
         : '';
 
-    const baseUrl = this.config.baseUrl ?? window.location.origin;
-    const url = `${baseUrl}/api/sse/events?channels=${encodeURIComponent(
+    const sseBaseUrl = this.config.baseUrl ?? apiUrl('');
+    const resolvedBase = sseBaseUrl || window.location.origin;
+    const url = `${resolvedBase}/api/sse/events?channels=${encodeURIComponent(
       channelsList.join(',')
     )}&token=${encodeURIComponent(token)}${cursorParam}`;
 
