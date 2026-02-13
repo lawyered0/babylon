@@ -30,6 +30,7 @@
 import { cn } from '@babylon/shared';
 import { Activity, Clock, TrendingDown, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Bias adjustment structure for market bias indicator.
@@ -69,7 +70,7 @@ export function MarketBiasIndicator({
   useEffect(() => {
     const fetchBiases = async () => {
       setLoading(true);
-      const response = await fetch('/api/markets/bias/active');
+      const response = await fetch(apiUrl('/api/markets/bias/active'));
       const result = await response.json();
 
       if (result.success) {

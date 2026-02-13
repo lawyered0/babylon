@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Escrow schema for validation.
@@ -159,15 +160,18 @@ export function EscrowManagementTab() {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch('/api/admin/moderation-escrow/refund', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        escrowId: selectedEscrow.id,
-        refundTxHash: refundTxHash.trim(),
-        reason: refundReason.trim() || undefined,
-      }),
-    });
+    const response = await fetch(
+      apiUrl('/api/admin/moderation-escrow/refund'),
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          escrowId: selectedEscrow.id,
+          refundTxHash: refundTxHash.trim(),
+          reason: refundReason.trim() || undefined,
+        }),
+      }
+    );
 
     const data = await response.json();
 

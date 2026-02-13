@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 type HealthStatus = 'healthy' | 'degraded' | 'critical';
 
@@ -73,7 +74,7 @@ export function SystemHealthTab() {
 
   const fetchHealth = useCallback((showRefreshing = false) => {
     const fetchLogic = async () => {
-      const response = await fetch('/api/admin/system-health');
+      const response = await fetch(apiUrl('/api/admin/system-health'));
       if (!response.ok) {
         setLoading(false);
         return;

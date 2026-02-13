@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Zod schema for tier statistics.
@@ -179,7 +180,7 @@ export function AlphaGroupsTab() {
     setIsLoading(true);
     setError(null);
 
-    const response = await fetch('/api/admin/alpha-groups/stats', {
+    const response = await fetch(apiUrl('/api/admin/alpha-groups/stats'), {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -209,7 +210,7 @@ export function AlphaGroupsTab() {
    * Fetch alpha group configuration.
    */
   const fetchConfig = useCallback(async () => {
-    const response = await fetch('/api/admin/alpha-groups/config', {
+    const response = await fetch(apiUrl('/api/admin/alpha-groups/config'), {
       headers: {
         'Content-Type': 'application/json',
       },

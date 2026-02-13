@@ -8,6 +8,7 @@ import { Avatar } from '@/components/shared/Avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { useSocialTracking } from '@/hooks/usePostHog';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Detect if the user is on macOS for keyboard shortcut display
@@ -130,7 +131,7 @@ export function InlineComposer({
         Authorization: `Bearer ${token}`,
       };
 
-      const response = await fetch('/api/posts', {
+      const response = await fetch(apiUrl('/api/posts'), {
         method: 'POST',
         headers,
         body: JSON.stringify({

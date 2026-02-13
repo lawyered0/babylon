@@ -26,6 +26,7 @@ import { Avatar } from '@/components/shared/Avatar';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Registry entity schema for validation.
@@ -150,7 +151,7 @@ export function RegistryTab() {
     if (search) params.set('search', search);
     if (onChainOnly) params.set('onChainOnly', 'true');
 
-    fetch(`/api/registry/all?${params}`)
+    fetch(apiUrl(`/api/registry/all?${params}`))
       .then((response) => {
         if (!response.ok) {
           return response.json().then((errorData) => {
@@ -651,7 +652,7 @@ export function RegistryTab() {
 
     setIsBanning(true);
     const token = getAuthToken();
-    const response = await fetch(`/api/admin/users/${entity.id}/ban`, {
+    const response = await fetch(apiUrl(`/api/admin/users/${entity.id}/ban`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

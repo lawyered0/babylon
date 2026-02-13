@@ -20,6 +20,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useWidgetCacheStore } from '@/stores/widgetCacheStore';
+import { apiUrl } from '@/utils/api-url';
 import { PositionDetailModal } from './PositionDetailModal';
 
 // Module-scope formatters to avoid recreating on every render
@@ -58,9 +59,11 @@ async function fetchProfileWidgetData(userId: string): Promise<{
   needsOnboarding?: boolean;
 }> {
   const [breakdownRes, positionsRes, profileRes] = await Promise.all([
-    fetch(`/api/users/${encodeURIComponent(userId)}/portfolio-breakdown`),
-    fetch(`/api/markets/positions/${encodeURIComponent(userId)}`),
-    fetch(`/api/users/${encodeURIComponent(userId)}/profile`),
+    fetch(
+      apiUrl(`/api/users/${encodeURIComponent(userId)}/portfolio-breakdown`)
+    ),
+    fetch(apiUrl(`/api/markets/positions/${encodeURIComponent(userId)}`)),
+    fetch(apiUrl(`/api/users/${encodeURIComponent(userId)}/profile`)),
   ]);
 
   // Check for complete fetch failure (all requests failed)

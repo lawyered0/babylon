@@ -16,6 +16,7 @@ import type { PortfolioBreakdownSnapshot } from '@/hooks/usePortfolioPnL';
 import { useTwitterAuth } from '@/hooks/useTwitterAuth';
 import type { User } from '@/stores/authStore';
 import type { MarketCategory } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Category PnL data structure for PnL share modal.
@@ -276,7 +277,7 @@ export function PnLShareModal({
     toast.info('Posting to X...');
 
     try {
-      const tweetResponse = await fetch('/api/twitter/tweet', {
+      const tweetResponse = await fetch(apiUrl('/api/twitter/tweet'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

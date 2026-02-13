@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/auth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Invite friends banner component for referral program.
@@ -93,16 +94,19 @@ export function InviteFriendsBanner({ onDismiss }: InviteFriendsBannerProps) {
     // Update server
     const token = getAuthToken();
     if (token) {
-      await fetch(`/api/users/${encodeURIComponent(user.id)}/update-profile`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bannerDismissCount: dismissCount + 1,
-        }),
-      });
+      await fetch(
+        apiUrl(`/api/users/${encodeURIComponent(user.id)}/update-profile`),
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            bannerDismissCount: dismissCount + 1,
+          }),
+        }
+      );
 
       // Update local user state
       if (user) {

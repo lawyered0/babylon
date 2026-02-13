@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Appeal structure for human review tab.
@@ -57,7 +58,7 @@ export function HumanReviewTab() {
   const [showActionModal, setShowActionModal] = useState(false);
 
   const fetchAppeals = useCallback(async () => {
-    const response = await fetch('/api/admin/moderation/human-review');
+    const response = await fetch(apiUrl('/api/admin/moderation/human-review'));
     if (!response.ok) {
       toast.error('Failed to load appeals');
       setLoading(false);

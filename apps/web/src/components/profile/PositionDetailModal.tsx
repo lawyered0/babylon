@@ -24,6 +24,7 @@ import { formatPrice } from '@/app/markets/_lib/formatters';
 import { FollowButton } from '@/components/interactions';
 import { useAuth } from '@/hooks/useAuth';
 import { usePerpMarketsStore } from '@/stores/perpMarketsStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Format error message from API response payload.
@@ -181,7 +182,9 @@ export function PositionDetailModal({
   );
 
   const fetchPredictionMarket = useCallback(async (marketId: string) => {
-    const response = await fetch(`/api/markets/predictions/${marketId}`);
+    const response = await fetch(
+      apiUrl(`/api/markets/predictions/${marketId}`)
+    );
     if (response.ok) {
       const marketData = await response.json();
       const payload = (marketData as { market?: unknown }).market ?? marketData;
@@ -223,7 +226,7 @@ export function PositionDetailModal({
     }
 
     try {
-      const response = await fetch('/api/markets/perps/open', {
+      const response = await fetch(apiUrl('/api/markets/perps/open'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

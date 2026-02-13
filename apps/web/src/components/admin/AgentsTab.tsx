@@ -19,6 +19,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Running agent structure for agents tab.
@@ -127,7 +128,7 @@ export function AgentsTab() {
       return;
     }
 
-    const response = await fetch('/api/admin/agents', {
+    const response = await fetch(apiUrl('/api/admin/agents'), {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -164,14 +165,17 @@ export function AgentsTab() {
       return;
     }
 
-    const response = await fetch(`/api/admin/agents/${agentId}/toggle`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ enabled: enable }),
-    });
+    const response = await fetch(
+      apiUrl(`/api/admin/agents/${agentId}/toggle`),
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ enabled: enable }),
+      }
+    );
 
     if (!response.ok) {
       toast.error('Failed to toggle agent');
@@ -197,7 +201,7 @@ export function AgentsTab() {
       return;
     }
 
-    const response = await fetch('/api/admin/agents/pause-all', {
+    const response = await fetch(apiUrl('/api/admin/agents/pause-all'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -229,7 +233,7 @@ export function AgentsTab() {
       return;
     }
 
-    const response = await fetch('/api/admin/agents/resume-all', {
+    const response = await fetch(apiUrl('/api/admin/agents/resume-all'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

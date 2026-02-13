@@ -18,6 +18,7 @@ import {
 } from '@/components/shared/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { useInteractionStore } from '@/stores/interactionStore';
+import { apiUrl } from '@/utils/api-url';
 
 type PostPreviewData = {
   id: string;
@@ -256,7 +257,7 @@ export function FeedCommentSection({
       }
 
       setIsLoadingPost(true);
-      const response = await fetch(`/api/posts/${postId}`);
+      const response = await fetch(apiUrl(`/api/posts/${postId}`));
       if (response.ok) {
         const result = await response.json();
         setPost(result.data);

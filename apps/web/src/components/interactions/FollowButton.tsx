@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useSocialTracking } from '@/hooks/usePostHog';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Follow button component for following/unfollowing users.
@@ -83,11 +84,14 @@ export function FollowButton({
 
       // Encode userId/username to handle special characters
       const encodedIdentifier = encodeURIComponent(userId);
-      const response = await fetch(`/api/users/${encodedIdentifier}/follow`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        apiUrl(`/api/users/${encodedIdentifier}/follow`),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -149,12 +153,15 @@ export function FollowButton({
     // Encode userId/username to handle special characters
     const encodedIdentifier = encodeURIComponent(userId);
     const method = newFollowingState ? 'POST' : 'DELETE';
-    const response = await fetch(`/api/users/${encodedIdentifier}/follow`, {
-      method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      apiUrl(`/api/users/${encodedIdentifier}/follow`),
+      {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (response.ok) {
       // Success! State was already updated optimistically above

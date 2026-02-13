@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { z } from 'zod';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Trade type schema for validation.
@@ -236,7 +237,7 @@ export function TradingFeedTab() {
       payload.reason = (formData.get('reason') as string) || undefined;
     }
 
-    const response = await fetch('/api/admin/trades', {
+    const response = await fetch(apiUrl('/api/admin/trades'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

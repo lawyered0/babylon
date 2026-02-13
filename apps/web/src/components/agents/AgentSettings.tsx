@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 import {
   type AgentConfigurationData,
   AgentConfigurationForm,
@@ -161,7 +162,7 @@ export function AgentSettings({ agent, onUpdate }: AgentSettingsProps) {
         uploadFormData.append('file', profileImage.file);
         uploadFormData.append('type', 'profile');
 
-        const uploadResponse = await fetch('/api/upload/image', {
+        const uploadResponse = await fetch(apiUrl('/api/upload/image'), {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -188,7 +189,7 @@ export function AgentSettings({ agent, onUpdate }: AgentSettingsProps) {
         updatedData.profileImageUrl = uploadData.url;
       }
 
-      const res = await fetch(`/api/agents/${agent.id}`, {
+      const res = await fetch(apiUrl(`/api/agents/${agent.id}`), {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -240,7 +241,7 @@ export function AgentSettings({ agent, onUpdate }: AgentSettingsProps) {
       return;
     }
 
-    const res = await fetch(`/api/agents/${agent.id}`, {
+    const res = await fetch(apiUrl(`/api/agents/${agent.id}`), {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

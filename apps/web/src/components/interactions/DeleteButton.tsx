@@ -4,6 +4,7 @@ import { cn, logger } from '@babylon/shared';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Delete button component for post deletion.
@@ -62,7 +63,7 @@ export function DeleteButton({
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const response = await fetch(`/api/posts/${postId}`, {
+    const response = await fetch(apiUrl(`/api/posts/${postId}`), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

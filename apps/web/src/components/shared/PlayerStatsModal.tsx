@@ -16,6 +16,7 @@ import {
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { apiUrl } from '@/utils/api-url';
 
 interface UserProfile {
   id: string;
@@ -68,7 +69,7 @@ export function PlayerStatsModal({
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/users/${userId}/profile`);
+      const response = await fetch(apiUrl(`/api/users/${userId}/profile`));
 
       if (!response.ok) {
         const errorMessage = 'Failed to fetch profile';

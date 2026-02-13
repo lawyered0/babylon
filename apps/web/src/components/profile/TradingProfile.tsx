@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { TradesFeed } from '@/components/trades/TradesFeed';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Trading profile component for displaying comprehensive trading statistics and positions.
@@ -183,11 +184,11 @@ export function TradingProfile({
     // Fetch all data in parallel
     const [profileRes, leaderboardRes, positionsRes, breakdownRes] =
       await Promise.all([
-        fetch(`/api/users/${encodeURIComponent(userId)}/profile`, {
+        fetch(apiUrl(`/api/users/${encodeURIComponent(userId)}/profile`), {
           headers,
           signal: abortController.signal,
         }),
-        fetch(`/api/leaderboard?page=1&pageSize=100`, {
+        fetch(apiUrl(`/api/leaderboard?page=1&pageSize=100`), {
           headers,
           signal: abortController.signal,
         }),

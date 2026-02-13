@@ -22,6 +22,7 @@ import { useAgentForm } from '@/app/agents/create/hooks';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useWalletBalance } from '@/hooks/useWalletBalance';
+import { apiUrl } from '@/utils/api-url';
 
 const TOTAL_PROFILE_PICTURES = 100;
 const TOTAL_BANNERS = 100;
@@ -205,7 +206,7 @@ export function AgentCreate({
       : agentData.system;
 
     // Step 1: Create the agent
-    const response = await fetch('/api/agents', {
+    const response = await fetch(apiUrl('/api/agents'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

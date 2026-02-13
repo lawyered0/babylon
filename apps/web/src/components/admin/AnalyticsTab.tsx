@@ -47,6 +47,7 @@ import {
   YAxis,
 } from 'recharts';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 type PeriodType = 'day' | 'week' | 'month';
 
@@ -82,7 +83,9 @@ export function AnalyticsTab() {
   const fetchAnalytics = useCallback(
     (showRefreshing = false) => {
       const fetchLogic = async () => {
-        const response = await fetch(`/api/admin/analytics?period=${period}`);
+        const response = await fetch(
+          apiUrl(`/api/admin/analytics?period=${period}`)
+        );
         if (!response.ok) {
           setLoading(false);
           return;

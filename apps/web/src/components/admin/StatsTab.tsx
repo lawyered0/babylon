@@ -17,6 +17,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * User stats schema for validation.
@@ -194,7 +195,7 @@ export function StatsTab() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
-    const response = await fetch('/api/admin/stats');
+    const response = await fetch(apiUrl('/api/admin/stats'));
     if (!response.ok) throw new Error('Failed to fetch stats');
     const data = await response.json();
     const validation = SystemStatsSchema.safeParse(data);
@@ -207,7 +208,7 @@ export function StatsTab() {
   }, []);
 
   const fetchFeeStats = useCallback(async () => {
-    const response = await fetch('/api/admin/fees');
+    const response = await fetch(apiUrl('/api/admin/fees'));
     if (!response.ok) return; // Fail silently for fees
     const data = await response.json();
     const validation = FeeStatsSchema.safeParse(data.platformStats);
@@ -217,7 +218,9 @@ export function StatsTab() {
   }, []);
 
   const fetchTokenStats = useCallback(async () => {
-    const response = await fetch('/api/stats/tokens?period=day&limit=50');
+    const response = await fetch(
+      apiUrl('/api/stats/tokens?period=day&limit=50')
+    );
     if (!response.ok) return; // Fail silently for token stats
     const data = await response.json();
     const validation = TokenStatsSchema.safeParse(data);

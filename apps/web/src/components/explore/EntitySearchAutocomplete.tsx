@@ -5,6 +5,7 @@ import { ArrowRight, Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Avatar } from '@/components/shared/Avatar';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * API user structure from registry API.
@@ -111,7 +112,9 @@ export function EntitySearchAutocomplete({
         search: value,
         type: searchType,
       });
-      const response = await fetch(`/api/registry/all?${params.toString()}`);
+      const response = await fetch(
+        apiUrl(`/api/registry/all?${params.toString()}`)
+      );
       if (response.ok) {
         const data = await response.json();
         // Filter out NPC users (isActor: true) - they appear in the actors array

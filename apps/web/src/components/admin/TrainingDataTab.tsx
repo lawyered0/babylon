@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Training data statistics structure for training data tab.
@@ -81,7 +82,7 @@ export function TrainingDataTab() {
       return;
     }
 
-    const response = await fetch('/api/admin/training-data', {
+    const response = await fetch(apiUrl('/api/admin/training-data'), {
       headers: {
         Authorization: `Bearer ${token}`,
       },

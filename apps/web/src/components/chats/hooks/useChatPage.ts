@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 import type { Chat, ChatDetails, ChatFilter } from '../types';
 
 export function useChatPage() {
@@ -101,10 +102,12 @@ export function useChatPage() {
     }
 
     const [personalResponse, gameResponse] = await Promise.all([
-      fetch('/api/chats', {
+      fetch(apiUrl('/api/chats'), {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      isDebugMode ? fetch('/api/chats?all=true') : Promise.resolve(null),
+      isDebugMode
+        ? fetch(apiUrl('/api/chats?all=true'))
+        : Promise.resolve(null),
     ]);
 
     if (!personalResponse.ok) {
@@ -153,7 +156,7 @@ export function useChatPage() {
       setLoadingChat(true);
 
       if (isDebugMode) {
-        const response = await fetch(`/api/chats/${chatId}?debug=true`);
+        const response = await fetch(apiUrl(`/api/chats/${chatId}?debug=true`));
         const data = await response.json();
         setChatDetails({
           ...data,
@@ -171,7 +174,7 @@ export function useChatPage() {
         return;
       }
 
-      const response = await fetch(`/api/chats/${chatId}`, {
+      const response = await fetch(apiUrl(`/api/chats/${chatId}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -213,14 +216,17 @@ export function useChatPage() {
       return;
     }
 
-    const response = await fetch(`/api/chats/${selectedChatId}/message`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ content: messageInput.trim() }),
-    }).catch((error: Error) => {
+    const response = await fetch(
+      apiUrl(`/api/chats/${selectedChatId}/message`),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: messageInput.trim() }),
+      }
+    ).catch((error: Error) => {
       setSendError('Failed to send message. Please try again.');
       setSending(false);
       throw error;
@@ -332,9 +338,12 @@ export function useChatPage() {
     if (!chatDetails?.chat.id) return;
 
     const token = await getAccessToken();
-    const response = await fetch(`/api/chats/${chatDetails.chat.id}/group`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).catch((error: Error) => {
+    const response = await fetch(
+      apiUrl(`/api/chats/${chatDetails.chat.id}/group`),
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    ).catch((error: Error) => {
       console.error('Error fetching group ID:', error);
       throw error;
     });
@@ -357,9 +366,12 @@ export function useChatPage() {
         return;
       }
 
-      const response = await fetch(`/api/users/${targetUserId}/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {
+      const response = await fetch(
+        apiUrl(`/api/users/${targetUserId}/profile`),
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      ).catch(() => {
         setLoadingChat(false);
         throw new Error('Failed to load user info');
       });

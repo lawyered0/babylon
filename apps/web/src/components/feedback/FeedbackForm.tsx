@@ -35,6 +35,7 @@ import { Loader2, Send } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 import { ScoreSlider } from './ScoreSlider';
 import { StarRatingInput } from './StarRating';
 
@@ -87,7 +88,7 @@ export function FeedbackForm({
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch('/api/feedback/submit', {
+    const response = await fetch(apiUrl('/api/feedback/submit'), {
       method: 'POST',
       headers,
       body: JSON.stringify({

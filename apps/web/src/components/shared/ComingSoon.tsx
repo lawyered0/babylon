@@ -37,6 +37,7 @@ import type {
   NftAccessResponse,
 } from '@/types/nft';
 import { apiFetch } from '@/utils/api-fetch';
+import { apiUrl } from '@/utils/api-url';
 import { uploadImage, validateImageFile } from '@/utils/upload-image';
 
 // Blog URL from environment with fallback
@@ -305,7 +306,7 @@ export function ComingSoon() {
 
     // Send authentication data to backend for verification and linking
     const token = getAuthToken();
-    const response = await fetch('/api/auth/farcaster/callback', {
+    const response = await fetch(apiUrl('/api/auth/farcaster/callback'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -781,7 +782,7 @@ export function ComingSoon() {
   const awardWalletBonus = useCallback(
     async (userId: string, walletAddress: string) => {
       try {
-        const response = await fetch('/api/waitlist/bonus/wallet', {
+        const response = await fetch(apiUrl('/api/waitlist/bonus/wallet'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, walletAddress }),
@@ -1282,11 +1283,11 @@ export function ComingSoon() {
         if (!token || controller.signal.aborted) return;
 
         const [eligibilityRes, accessRes] = await Promise.all([
-          fetch('/api/nft/eligibility', {
+          fetch(apiUrl('/api/nft/eligibility'), {
             headers: { Authorization: `Bearer ${token}` },
             signal: controller.signal,
           }),
-          fetch('/api/nft/access', {
+          fetch(apiUrl('/api/nft/access'), {
             headers: { Authorization: `Bearer ${token}` },
             signal: controller.signal,
           }),

@@ -5,6 +5,7 @@ import { Bell, MessageCircle, Send, User, UserPlus, Users } from 'lucide-react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Notification type for admin notifications tab.
@@ -63,7 +64,7 @@ export function NotificationsTab() {
       const token = getAuthToken();
       if (!token) return;
 
-      const response = await fetch('/api/users/me', {
+      const response = await fetch(apiUrl('/api/users/me'), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -96,7 +97,7 @@ export function NotificationsTab() {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/admin/notifications', {
+      const response = await fetch(apiUrl('/api/admin/notifications'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -185,7 +186,7 @@ export function NotificationsTab() {
 
       toast.info('Sending 100 test DM messages... This may take a moment.');
 
-      const response = await fetch('/api/admin/test-dm-messages', {
+      const response = await fetch(apiUrl('/api/admin/test-dm-messages'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -641,7 +642,7 @@ function GroupInviteSection() {
       throw new Error('Not authenticated');
     }
 
-    const response = await fetch('/api/admin/group-invite', {
+    const response = await fetch(apiUrl('/api/admin/group-invite'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

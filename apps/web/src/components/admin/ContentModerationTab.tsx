@@ -32,6 +32,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 type ContentType = 'all' | 'posts' | 'comments';
 
@@ -124,7 +125,7 @@ export function ContentModerationTab() {
 
         let response: Response;
         try {
-          response = await fetch(`/api/admin/content-queue?${params}`);
+          response = await fetch(apiUrl(`/api/admin/content-queue?${params}`));
         } catch {
           setError({
             type: 'network',
@@ -177,15 +178,18 @@ export function ContentModerationTab() {
     startActioning(async () => {
       let response: Response;
       try {
-        response = await fetch(`/api/admin/content-queue/${selectedItem.id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: actionType,
-            contentType: selectedItem.type,
-            reason: actionReason || undefined,
-          }),
-        });
+        response = await fetch(
+          apiUrl(`/api/admin/content-queue/${selectedItem.id}`),
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: actionType,
+              contentType: selectedItem.type,
+              reason: actionReason || undefined,
+            }),
+          }
+        );
       } catch {
         toast.error('Network error. Check your connection.');
         return;

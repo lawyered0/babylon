@@ -26,6 +26,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Report evaluation structure from AI.
@@ -129,7 +130,7 @@ export function ReportsTab() {
           if (statusFilter !== 'all') params.set('status', statusFilter);
           if (priorityFilter !== 'all') params.set('priority', priorityFilter);
 
-          const response = await fetch(`/api/admin/reports?${params}`);
+          const response = await fetch(apiUrl(`/api/admin/reports?${params}`));
           if (!response.ok) {
             console.error('Failed to fetch reports:', response.status);
             setLoading(false);
@@ -157,7 +158,7 @@ export function ReportsTab() {
   const fetchStats = useCallback(() => {
     const fetchLogic = async () => {
       try {
-        const response = await fetch('/api/admin/reports/stats');
+        const response = await fetch(apiUrl('/api/admin/reports/stats'));
         if (!response.ok) return;
 
         const data = await response.json();
@@ -179,7 +180,7 @@ export function ReportsTab() {
     action: string,
     resolution: string
   ) => {
-    const response = await fetch(`/api/admin/reports/${reportId}`, {
+    const response = await fetch(apiUrl(`/api/admin/reports/${reportId}`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, resolution }),
@@ -200,7 +201,7 @@ export function ReportsTab() {
 
   const handleEvaluate = async (reportId: string) => {
     setEvaluatingReportId(reportId);
-    const response = await fetch(`/api/admin/reports/${reportId}`, {
+    const response = await fetch(apiUrl(`/api/admin/reports/${reportId}`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'evaluate' }),

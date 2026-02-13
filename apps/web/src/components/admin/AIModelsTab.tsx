@@ -5,6 +5,7 @@ import { AlertCircle, Bot, Check, RefreshCw, Zap } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * AI model info structure.
@@ -59,7 +60,7 @@ export function AIModelsTab() {
       return;
     }
 
-    const response = await fetch('/api/admin/ai-models', {
+    const response = await fetch(apiUrl('/api/admin/ai-models'), {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -90,7 +91,7 @@ export function AIModelsTab() {
       return;
     }
 
-    const response = await fetch('/api/admin/ai-models/test', {
+    const response = await fetch(apiUrl('/api/admin/ai-models/test'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

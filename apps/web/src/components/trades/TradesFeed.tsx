@@ -3,6 +3,7 @@
 import { Activity, AlertCircle } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FeedSkeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 import { type Trade, TradeCard } from './TradeCard';
 
 /**
@@ -76,7 +77,7 @@ export function TradesFeed({ userId, containerRef }: TradesFeedProps) {
         params.append('userId', userId);
       }
 
-      const response = await fetch(`/api/trades?${params.toString()}`);
+      const response = await fetch(apiUrl(`/api/trades?${params.toString()}`));
       if (!response.ok) {
         setError(`Failed to load trades: ${response.status}`);
         setLoading(false);
@@ -120,7 +121,7 @@ export function TradesFeed({ userId, containerRef }: TradesFeedProps) {
       params.append('userId', userId);
     }
 
-    const response = await fetch(`/api/trades?${params.toString()}`);
+    const response = await fetch(apiUrl(`/api/trades?${params.toString()}`));
     if (!response.ok) return;
 
     const data = await response.json();

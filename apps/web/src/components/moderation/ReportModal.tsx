@@ -36,6 +36,7 @@ import { AlertCircle, Flag, X } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Avatar } from '@/components/shared/Avatar';
+import { apiUrl } from '@/utils/api-url';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -124,7 +125,7 @@ export function ReportModal({
     }
 
     startReporting(async () => {
-      const response = await fetch('/api/moderation/reports', {
+      const response = await fetch(apiUrl('/api/moderation/reports'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

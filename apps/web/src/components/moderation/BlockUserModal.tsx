@@ -32,6 +32,7 @@
 import { Ban, X } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { apiUrl } from '@/utils/api-url';
 
 interface BlockUserModalProps {
   isOpen: boolean;
@@ -55,7 +56,7 @@ export function BlockUserModal({
 
   const handleBlock = () => {
     startBlocking(async () => {
-      const response = await fetch(`/api/users/${targetUserId}/block`, {
+      const response = await fetch(apiUrl(`/api/users/${targetUserId}/block`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

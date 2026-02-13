@@ -22,6 +22,7 @@ import { Avatar } from '@/components/shared/Avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { getAuthToken } from '@/lib/auth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Mobile header content component for mobile devices.
@@ -115,8 +116,12 @@ function MobileHeaderContent() {
 
       // Fetch both trading balance and profile for reputation points
       const [balanceResponse, profileResponse] = await Promise.all([
-        fetch(`/api/users/${encodeURIComponent(user.id)}/balance`, { headers }),
-        fetch(`/api/users/${encodeURIComponent(user.id)}/profile`, { headers }),
+        fetch(apiUrl(`/api/users/${encodeURIComponent(user.id)}/balance`), {
+          headers,
+        }),
+        fetch(apiUrl(`/api/users/${encodeURIComponent(user.id)}/profile`), {
+          headers,
+        }),
       ]);
 
       if (balanceResponse.ok) {

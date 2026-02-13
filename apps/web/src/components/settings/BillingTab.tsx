@@ -21,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useWalletBalance } from '@/hooks/useWalletBalance';
 import { getExplorerName, getExplorerTxUrl } from '@/lib/chain';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 /** Number of transactions to show in collapsed view */
 const COLLAPSED_COUNT = 5;
@@ -363,9 +364,12 @@ export function BillingTab() {
 
     try {
       const token = await getAccessToken();
-      const response = await fetch(`/api/users/${user.id}/points-history`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const response = await fetch(
+        apiUrl(`/api/users/${user.id}/points-history`),
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));

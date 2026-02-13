@@ -11,6 +11,7 @@ import { Loader2, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 import {
   BugReportFields,
   DescriptionField,
@@ -205,7 +206,7 @@ export function GameFeedbackModal({ isOpen, onClose }: GameFeedbackModalProps) {
       : timeoutController.signal;
 
     try {
-      const response = await fetch('/api/upload/image', {
+      const response = await fetch(apiUrl('/api/upload/image'), {
         method: 'POST',
         headers,
         body: formData,
@@ -257,7 +258,7 @@ export function GameFeedbackModal({ isOpen, onClose }: GameFeedbackModalProps) {
         const headers: HeadersInit = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
         // Fire-and-forget cleanup - log failures for observability but don't block
-        void fetch('/api/upload/image', {
+        void fetch(apiUrl('/api/upload/image'), {
           method: 'DELETE',
           headers: { ...headers, 'Content-Type': 'application/json' },
           body: JSON.stringify({ url }),
@@ -277,7 +278,7 @@ export function GameFeedbackModal({ isOpen, onClose }: GameFeedbackModalProps) {
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const response = await fetch('/api/feedback/game-feedback', {
+        const response = await fetch(apiUrl('/api/feedback/game-feedback'), {
           method: 'POST',
           headers,
           body: JSON.stringify({

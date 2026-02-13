@@ -20,6 +20,7 @@ import { useBuyPointsTx } from '@/hooks/useBuyPointsTx';
 import { useWalletFunding } from '@/hooks/useWalletFunding';
 import { getExplorerTxUrl } from '@/lib/chain';
 import { isStripeEnabled } from '@/lib/stripe';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Buy points modal component for purchasing points with ETH or credit card.
@@ -317,7 +318,7 @@ export function BuyPointsModal({
         return;
       }
 
-      const response = await fetch('/api/stripe/checkout/session', {
+      const response = await fetch(apiUrl('/api/stripe/checkout/session'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -428,18 +429,21 @@ export function BuyPointsModal({
       }
 
       // Create payment request with abort signal
-      const response = await fetch('/api/points/purchase/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amountUSD: amountNum,
-          fromAddress: embeddedWalletAddress,
-        }),
-        signal,
-      });
+      const response = await fetch(
+        apiUrl('/api/points/purchase/create-payment'),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amountUSD: amountNum,
+            fromAddress: embeddedWalletAddress,
+          }),
+          signal,
+        }
+      );
 
       // Check if cancelled after fetch
       if (signal.aborted || !isMountedRef.current) {
@@ -598,21 +602,24 @@ export function BuyPointsModal({
     }
 
     try {
-      const response = await fetch('/api/points/purchase/verify-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          requestId,
-          txHash: transactionHash,
-          fromAddress: paymentRequest.from,
-          toAddress: paymentRequest.to,
-          amount: paymentRequest.amount,
-        }),
-        signal,
-      });
+      const response = await fetch(
+        apiUrl('/api/points/purchase/verify-payment'),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            requestId,
+            txHash: transactionHash,
+            fromAddress: paymentRequest.from,
+            toAddress: paymentRequest.to,
+            amount: paymentRequest.amount,
+          }),
+          signal,
+        }
+      );
 
       // Check if cancelled after fetch
       if (signal.aborted || !isMountedRef.current) {

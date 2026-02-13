@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 import { WorldFactsSection } from './WorldFactsSection';
 
 /**
@@ -129,7 +130,7 @@ export function GameControlTab() {
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   const fetchStats = useCallback(async () => {
-    const response = await fetch('/api/admin/game-stats');
+    const response = await fetch(apiUrl('/api/admin/game-stats'));
     if (!response.ok) {
       setLoading(false);
       setError('Failed to load stats');
@@ -154,7 +155,7 @@ export function GameControlTab() {
 
   const handleGameControl = async (action: 'start' | 'pause') => {
     setActionLoading(true);
-    const response = await fetch('/api/game/control', {
+    const response = await fetch(apiUrl('/api/game/control'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),

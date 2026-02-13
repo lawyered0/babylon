@@ -16,6 +16,7 @@ import type {
 import { Separator } from '@/components/shared/Separator';
 import { useAuth } from '@/hooks/useAuth';
 import { CHAT_PAGE_SIZE } from '@/lib/constants';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Chat message structure for agent chat.
@@ -405,7 +406,7 @@ export function AgentChat({
       return;
     }
 
-    const res = await fetch(`/api/agents/${agent.id}/chat`, {
+    const res = await fetch(apiUrl(`/api/agents/${agent.id}/chat`), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

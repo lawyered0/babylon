@@ -9,6 +9,7 @@ import {
   type TrendingItem,
   useWidgetCacheStore,
 } from '@/stores/widgetCacheStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Trending panel component for displaying trending topics.
@@ -50,7 +51,7 @@ export function TrendingPanel() {
         }
       }
 
-      const response = await fetch('/api/feed/widgets/trending');
+      const response = await fetch(apiUrl('/api/feed/widgets/trending'));
       const data = (await response.json()) as {
         success: boolean;
         trending?: TrendingItem[];

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Link social accounts modal component for connecting social accounts.
@@ -74,7 +75,7 @@ export function LinkSocialAccountsModal({
 
     // Send authentication data to backend for verification and linking
     const token = getAuthToken();
-    const response = await fetch('/api/auth/farcaster/callback', {
+    const response = await fetch(apiUrl('/api/auth/farcaster/callback'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

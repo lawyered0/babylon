@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * World fact structure for world facts section.
@@ -76,7 +77,7 @@ export function WorldFactsSection() {
   const [newFactValue, setNewFactValue] = useState<string>('');
 
   const fetchData = useCallback(async () => {
-    const response = await fetch('/api/admin/world-facts');
+    const response = await fetch(apiUrl('/api/admin/world-facts'));
     if (!response.ok) {
       setError('Failed to fetch world facts');
       setLoading(false);
@@ -97,7 +98,7 @@ export function WorldFactsSection() {
     actionData?: Record<string, unknown>
   ) => {
     setActionLoading(true);
-    const response = await fetch('/api/admin/world-facts', {
+    const response = await fetch(apiUrl('/api/admin/world-facts'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, data: actionData }),

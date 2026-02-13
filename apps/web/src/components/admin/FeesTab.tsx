@@ -19,6 +19,7 @@ import {
 import { z } from 'zod';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Fee statistics schema for validation.
@@ -114,7 +115,7 @@ export function FeesTab() {
 
   const fetchStats = useCallback(() => {
     startRefresh(async () => {
-      const response = await fetch('/api/admin/fees');
+      const response = await fetch(apiUrl('/api/admin/fees'));
       if (!response.ok) {
         throw new Error(`Failed to fetch fee statistics: ${response.status}`);
       }

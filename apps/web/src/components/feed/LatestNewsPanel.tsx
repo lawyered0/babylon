@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/shared/Skeleton';
 import { useWidgetRefresh } from '@/contexts/WidgetRefreshContext';
 import { useSSEChannel } from '@/hooks/useSSE';
 import { useWidgetCacheStore } from '@/stores/widgetCacheStore';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Latest news panel component for displaying recent articles.
@@ -175,7 +176,7 @@ export function LatestNewsPanel() {
       }
 
       // Query posts API with type filter for articles - fetch more for deduplication
-      const response = await fetch('/api/posts?type=article&limit=15');
+      const response = await fetch(apiUrl('/api/posts?type=article&limit=15'));
 
       if (!response.ok) {
         logger.error(

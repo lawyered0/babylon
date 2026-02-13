@@ -30,6 +30,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 interface AuditLog {
   id: string;
@@ -82,7 +83,7 @@ export function AuditLogsTab() {
         if (actionFilter) params.set('action', actionFilter);
         if (resourceTypeFilter) params.set('resourceType', resourceTypeFilter);
 
-        const response = await fetch(`/api/admin/audit-logs?${params}`);
+        const response = await fetch(apiUrl(`/api/admin/audit-logs?${params}`));
         if (!response.ok) {
           toast.error('Failed to load audit logs');
           setLoading(false);

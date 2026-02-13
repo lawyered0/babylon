@@ -21,6 +21,7 @@ import { Check, Lock, Twitter, X as XIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 import { ShareVerificationModal } from './ShareVerificationModal';
 
 // Farcaster icon component
@@ -93,7 +94,7 @@ export function ShareEarnModal({
   const shareText = text || 'Check this out!';
 
   const checkConfiguration = useCallback(async () => {
-    const response = await fetch('/api/auth/credentials/status');
+    const response = await fetch(apiUrl('/api/auth/credentials/status'));
     if (response.ok) {
       const data = (await response.json()) as {
         twitter?: boolean;

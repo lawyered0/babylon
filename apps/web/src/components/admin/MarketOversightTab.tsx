@@ -34,6 +34,7 @@ import {
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 type MarketStatus = 'all' | 'active' | 'expired' | 'resolved';
 
@@ -101,7 +102,7 @@ export function MarketOversightTab() {
         const params = new URLSearchParams();
         if (statusFilter !== 'all') params.set('status', statusFilter);
 
-        const response = await fetch(`/api/admin/markets?${params}`);
+        const response = await fetch(apiUrl(`/api/admin/markets?${params}`));
         if (!response.ok) {
           toast.error('Failed to load market data');
           setLoading(false);
@@ -155,11 +156,14 @@ export function MarketOversightTab() {
           extendDate && { newEndDate: extendDate }),
       };
 
-      const response = await fetch(`/api/admin/markets/${selectedMarket.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const response = await fetch(
+        apiUrl(`/api/admin/markets/${selectedMarket.id}`),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }
+      );
 
       if (!response.ok) {
         const text = await response.text();

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Trending post structure for trending posts panel.
@@ -47,7 +48,7 @@ export function TrendingPostsPanel() {
 
   useEffect(() => {
     const fetchTrendingPosts = async () => {
-      const response = await fetch('/api/feed/widgets/trending-posts');
+      const response = await fetch(apiUrl('/api/feed/widgets/trending-posts'));
       const data = await response.json();
       if (data.success) {
         setPosts(data.posts || []);

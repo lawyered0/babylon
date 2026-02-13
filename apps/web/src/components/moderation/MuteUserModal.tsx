@@ -32,6 +32,7 @@
 import { VolumeX, X } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { apiUrl } from '@/utils/api-url';
 
 interface MuteUserModalProps {
   isOpen: boolean;
@@ -55,7 +56,7 @@ export function MuteUserModal({
 
   const handleMute = () => {
     startMuting(async () => {
-      const response = await fetch(`/api/users/${targetUserId}/mute`, {
+      const response = await fetch(apiUrl(`/api/users/${targetUserId}/mute`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
