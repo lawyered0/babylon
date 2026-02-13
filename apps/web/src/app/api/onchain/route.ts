@@ -31,11 +31,16 @@ import {
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { type Address, encodeFunctionData, type Hex, pad } from 'viem';
+import type { AgentProfileMetadata } from '@/hooks/useUpdateAgentProfileTx';
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function marketIdToBytes32(marketId: string): `0x${string}` {
-  const bigintValue = BigInt(marketId);
-  const hexValue = `0x${bigintValue.toString(16)}` as `0x${string}`;
-  return pad(hexValue, { size: 32 });
+  return pad(`0x${BigInt(marketId).toString(16)}` as `0x${string}`, {
+    size: 32,
+  });
 }
 
 const { diamond: DIAMOND_ADDRESS } = getContractAddresses();
@@ -65,11 +70,6 @@ const PREDICTION_MARKET_ABI = [
   },
 ] as const;
 
-/**
- * Extract Privy token from the Authorization header.
- * In the API route context, cookies may not be available cross-origin,
- * so we rely on the Bearer token.
- */
 function extractPrivyToken(request: NextRequest): string {
   const cookieToken = request.cookies.get('privy-token')?.value;
   const authHeader = request.headers.get('authorization');
@@ -79,33 +79,32 @@ function extractPrivyToken(request: NextRequest): string {
 
   const token = headerToken ?? cookieToken;
   if (!token) {
-    throw new Error(
-      'Authentication required: no Privy token found. Please sign in and try again.'
-    );
+    throw new Error('Authentication required: no Privy token found.');
   }
   return token;
 }
 
-async function handleBuyShares(
+// ---------------------------------------------------------------------------
+// Action handlers
+// ---------------------------------------------------------------------------
+
+async function handleSharesTrade(
   token: string,
-  body: {
-    marketId: string;
-    outcome: 'YES' | 'NO';
-    numShares: number;
-  }
+  body: { marketId: string; outcome: 'YES' | 'NO'; numShares: number },
+  side: 'buyShares' | 'sellShares'
 ): Promise<{ txHash: Hex }> {
   const ctx = await getAuthedUserContextFromPrivyTokenBundle({
     primary: token,
   });
 
-  const marketIdBytes32 = marketIdToBytes32(body.marketId);
-  const outcomeIndex = body.outcome === 'YES' ? 1 : 0;
-  const sharesBigInt = BigInt(Math.floor(body.numShares * 1e18));
-
   const data = encodeFunctionData({
     abi: PREDICTION_MARKET_ABI,
-    functionName: 'buyShares',
-    args: [marketIdBytes32, outcomeIndex, sharesBigInt],
+    functionName: side,
+    args: [
+      marketIdToBytes32(body.marketId),
+      body.outcome === 'YES' ? 1 : 0,
+      BigInt(Math.floor(body.numShares * 1e18)),
+    ],
   });
 
   const { hash } = await sendSponsoredEvmTransaction({
@@ -118,58 +117,11 @@ async function handleBuyShares(
   });
 
   return { txHash: hash };
-}
-
-async function handleSellShares(
-  token: string,
-  body: {
-    marketId: string;
-    outcome: 'YES' | 'NO';
-    numShares: number;
-  }
-): Promise<{ txHash: Hex }> {
-  const ctx = await getAuthedUserContextFromPrivyTokenBundle({
-    primary: token,
-  });
-
-  const marketIdBytes32 = marketIdToBytes32(body.marketId);
-  const outcomeIndex = body.outcome === 'YES' ? 1 : 0;
-  const sharesBigInt = BigInt(Math.floor(body.numShares * 1e18));
-
-  const data = encodeFunctionData({
-    abi: PREDICTION_MARKET_ABI,
-    functionName: 'sellShares',
-    args: [marketIdBytes32, outcomeIndex, sharesBigInt],
-  });
-
-  const { hash } = await sendSponsoredEvmTransaction({
-    walletId: ctx.privyWalletId,
-    to: DIAMOND_ADDRESS as Address,
-    data,
-    valueWei: 0n,
-    caip2: `eip155:${CHAIN.id}`,
-    chainId: CHAIN.id,
-  });
-
-  return { txHash: hash };
-}
-
-interface AgentProfileMetadata {
-  name: string;
-  username?: string | null;
-  bio?: string | null;
-  profileImageUrl?: string | null;
-  coverImageUrl?: string | null;
-  type?: 'user' | string;
-  updated?: string;
 }
 
 async function handleUpdateAgentProfile(
   token: string,
-  body: {
-    metadata: AgentProfileMetadata;
-    endpoint?: string;
-  }
+  body: { metadata: AgentProfileMetadata; endpoint?: string }
 ): Promise<{ txHash: Hex }> {
   const ctx = await getAuthedUserContextFromPrivyTokenBundle({
     primary: token,
@@ -186,16 +138,19 @@ async function handleUpdateAgentProfile(
   const endpoint =
     body.endpoint ??
     `https://babylon.market/agent/${ctx.walletAddress.toLowerCase()}`;
-  const metadataJson = JSON.stringify({
-    ...body.metadata,
-    type: body.metadata.type ?? 'user',
-    updated: body.metadata.updated ?? new Date().toISOString(),
-  });
 
   const data = encodeFunctionData({
     abi: identityRegistryAbi,
     functionName: 'updateAgent',
-    args: [endpoint, CAPABILITIES_HASH, metadataJson],
+    args: [
+      endpoint,
+      CAPABILITIES_HASH,
+      JSON.stringify({
+        ...body.metadata,
+        type: body.metadata.type ?? 'user',
+        updated: body.metadata.updated ?? new Date().toISOString(),
+      }),
+    ],
   });
 
   const { hash } = await sendSponsoredEvmTransaction({
@@ -210,70 +165,44 @@ async function handleUpdateAgentProfile(
   return { txHash: hash };
 }
 
-type OnchainAction = 'buy-shares' | 'sell-shares' | 'update-agent-profile';
+// ---------------------------------------------------------------------------
+// Route handler
+// ---------------------------------------------------------------------------
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const token = extractPrivyToken(request);
   const body = await request.json();
-
-  const action = body.action as OnchainAction;
-  if (!action) {
-    return NextResponse.json(
-      { error: 'Missing required field: action' },
-      { status: 400 }
-    );
-  }
-
-  let result: { txHash: Hex };
+  const action = body.action as string;
 
   switch (action) {
     case 'buy-shares':
+    case 'sell-shares': {
       if (!body.marketId || !body.outcome || body.numShares == null) {
         return NextResponse.json(
           { error: 'Missing required fields: marketId, outcome, numShares' },
           { status: 400 }
         );
       }
-      result = await handleBuyShares(token, {
-        marketId: body.marketId,
-        outcome: body.outcome,
-        numShares: body.numShares,
-      });
-      break;
+      const side = action === 'buy-shares' ? 'buyShares' : 'sellShares';
+      const result = await handleSharesTrade(token, body, side);
+      return NextResponse.json({ success: true, ...result });
+    }
 
-    case 'sell-shares':
-      if (!body.marketId || !body.outcome || body.numShares == null) {
-        return NextResponse.json(
-          { error: 'Missing required fields: marketId, outcome, numShares' },
-          { status: 400 }
-        );
-      }
-      result = await handleSellShares(token, {
-        marketId: body.marketId,
-        outcome: body.outcome,
-        numShares: body.numShares,
-      });
-      break;
-
-    case 'update-agent-profile':
+    case 'update-agent-profile': {
       if (!body.metadata) {
         return NextResponse.json(
           { error: 'Missing required field: metadata' },
           { status: 400 }
         );
       }
-      result = await handleUpdateAgentProfile(token, {
-        metadata: body.metadata,
-        endpoint: body.endpoint,
-      });
-      break;
+      const result = await handleUpdateAgentProfile(token, body);
+      return NextResponse.json({ success: true, ...result });
+    }
 
     default:
       return NextResponse.json(
-        { error: `Unknown action: ${action}` },
+        { error: `Unknown action: ${action ?? 'undefined'}` },
         { status: 400 }
       );
   }
-
-  return NextResponse.json({ success: true, ...result });
 });

@@ -1,64 +1,43 @@
 /**
- * Platform detection utilities for the Capacitor mobile app.
- *
- * Provides runtime detection of whether the app is running in a native
- * Capacitor WebView (iOS/Android) or in a regular browser.
+ * Platform detection for the Capacitor mobile app.
+ * Lazy-initialized on first access, cached for subsequent calls.
  */
 
-let _isNative: boolean | null = null;
-let _platform: string | null = null;
+interface PlatformInfo {
+  isNative: boolean;
+  platform: 'ios' | 'android' | 'web' | 'ssr';
+}
 
-function detect() {
+let cached: PlatformInfo | undefined;
+
+function detect(): PlatformInfo {
   if (typeof window === 'undefined') {
-    _isNative = false;
-    _platform = 'ssr';
-    return;
+    return { isNative: false, platform: 'ssr' };
   }
 
-  // Check for Capacitor global (injected by native shell)
-  // biome-ignore lint/suspicious/noExplicitAny: Capacitor global check
+  // biome-ignore lint/suspicious/noExplicitAny: Capacitor global
   const cap = (window as any)?.Capacitor;
   if (cap?.isNativePlatform?.()) {
-    _isNative = true;
-    _platform = cap.getPlatform?.() ?? 'native';
-    return;
+    return { isNative: true, platform: cap.getPlatform?.() ?? 'android' };
   }
 
-  // Fallback: check origin scheme
   const origin = window.location.origin;
   if (origin.startsWith('capacitor://')) {
-    _isNative = true;
-    _platform = 'ios';
-  } else if (
-    origin === 'https://localhost' &&
-    navigator.userAgent.includes('Android')
-  ) {
-    _isNative = true;
-    _platform = 'android';
-  } else {
-    _isNative = false;
-    _platform = 'web';
+    return { isNative: true, platform: 'ios' };
   }
+  if (origin === 'https://localhost' && /Android/i.test(navigator.userAgent)) {
+    return { isNative: true, platform: 'android' };
+  }
+
+  return { isNative: false, platform: 'web' };
 }
 
-/** Whether the app is running inside a native Capacitor shell. */
-export function isNativePlatform(): boolean {
-  if (_isNative === null) detect();
-  return _isNative!;
+function get(): PlatformInfo {
+  cached ??= detect();
+  return cached;
 }
 
-/** Returns 'ios', 'android', 'web', or 'ssr'. */
-export function getPlatform(): string {
-  if (_platform === null) detect();
-  return _platform!;
-}
-
-/** Whether the app is running on iOS (Capacitor). */
-export function isIOS(): boolean {
-  return getPlatform() === 'ios';
-}
-
-/** Whether the app is running on Android (Capacitor). */
-export function isAndroid(): boolean {
-  return getPlatform() === 'android';
-}
+export const isNativePlatform = () => get().isNative;
+export const getPlatform = () => get().platform;
+export const isIOS = () => get().platform === 'ios';
+export const isAndroid = () => get().platform === 'android';
