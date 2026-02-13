@@ -1,9 +1,9 @@
-import { MobileUserProfileByIdPage } from "./client";
+import { MobileUserProfileByIdPage } from './client';
 
 export function generateStaticParams() {
-	return [{ userId: "_placeholder" }];
+  return [{ userId: '_placeholder' }];
 }
 
 export default function Page() {
-	return <MobileUserProfileByIdPage />;
+  return <MobileUserProfileByIdPage />;
 }
