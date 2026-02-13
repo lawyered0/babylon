@@ -6,7 +6,7 @@ import {
   formatPrice,
   formatVolume,
   getDaysLeft,
-} from '../../../../apps/web/src/app/markets/_lib/formatters';
+} from '../../../../apps/web/src/lib/market-formatters';
 
 describe('formatPrice', () => {
   it('formats with ƀ symbol and 2 decimals', () => {
