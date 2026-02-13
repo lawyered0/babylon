@@ -3,7 +3,12 @@
  *
  * Lightweight wrapper around fetch that decorates requests with authentication.
  * Uses Privy's HTTP-only cookie authentication.
+ *
+ * Resolves relative API paths via `apiUrl()` so the same code works for both
+ * web (same-origin) and mobile (cross-origin via NEXT_PUBLIC_API_URL).
  */
+
+import { apiUrl } from './api-url';
 
 /**
  * API Fetch Options
@@ -89,7 +94,10 @@ export async function apiFetch(
     }
   }
 
-  let response = await fetch(input, {
+  // Resolve relative API paths to absolute URLs when NEXT_PUBLIC_API_URL is set
+  const resolvedInput = typeof input === 'string' ? apiUrl(input) : input;
+
+  let response = await fetch(resolvedInput, {
     ...rest,
     headers: finalHeaders,
     credentials: auth ? 'include' : (rest.credentials ?? 'same-origin'),
@@ -105,7 +113,7 @@ export async function apiFetch(
       finalHeaders.set('Authorization', `Bearer ${freshToken}`);
 
       // Retry with the refreshed token
-      response = await fetch(input, {
+      response = await fetch(resolvedInput, {
         ...rest,
         headers: finalHeaders,
         credentials: 'include',
