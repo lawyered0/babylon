@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,8 +23,12 @@
       }
     ],
     "paths": {
-      "@/*": ["../web/src/*"],
-      "@/mobile/*": ["./src/*"]
+      "@/*": [
+        "../web/src/*"
+      ],
+      "@/mobile/*": [
+        "./src/*"
+      ]
     },
     "baseUrl": "."
   },
@@ -31,7 +39,14 @@
     "../web/src/**/*.ts",
     "../web/src/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "out/types/**/*.ts",
+    "out/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "out", "ios", "android"]
+  "exclude": [
+    "node_modules",
+    "out",
+    "ios",
+    "android"
+  ]
 }

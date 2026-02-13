@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "NEXT_PUBLIC_API_URL=https://play.babylon.market next dev --port 3077 --webpack",
-    "build": "NEXT_PUBLIC_API_URL=https://play.babylon.market next build --webpack",
-    "build:staging": "NEXT_PUBLIC_API_URL=https://staging.babylon.market next build --webpack",
+    "dev": "next dev --port 3077 --webpack",
+    "build": "next build --webpack",
+    "build:staging": "next build --webpack",
     "cap:sync": "npx cap sync",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
