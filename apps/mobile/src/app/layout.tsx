@@ -2,7 +2,7 @@
 
 import './globals.css';
 
-import { Suspense, useEffect, useState } from 'react';
+import { useMemo, Suspense, useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
 import { FeedAuthBanner } from '@/components/auth/FeedAuthBanner';
 import { GlobalLoginModal } from '@/components/auth/GlobalLoginModal';
@@ -14,6 +14,20 @@ import { Sidebar } from '@/components/shared/Sidebar';
 import { AppUrlListener } from '@/mobile/components/AppUrlListener';
 
 /**
+ * OAuth redirect URL for Capacitor.
+ *
+ * Per Privy's Capacitor docs, social login OAuth flows (Farcaster, Twitter,
+ * Discord, etc.) redirect to this HTTPS URL after authentication. The
+ * AppUrlListener component intercepts the redirect via deep linking and
+ * injects the OAuth params back into the WebView.
+ *
+ * Set NEXT_PUBLIC_OAUTH_REDIRECT_URL in env, or defaults to production.
+ */
+const OAUTH_REDIRECT_URL =
+  process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URL ||
+  'https://babylon.market/redirect';
+
+/**
  * Mobile root layout — client-only version.
  *
  * Differences from the web layout:
@@ -21,6 +35,7 @@ import { AppUrlListener } from '@/mobile/components/AppUrlListener';
  * - No waitlist host check
  * - No NftAccessGate server-side check
  * - No Vercel Analytics / SpeedInsights
+ * - Passes customOAuthRedirectUrl to Privy for Capacitor OAuth flows
  * - All rendering is client-side (required for static export)
  */
 export default function MobileRootLayout({
@@ -30,6 +45,15 @@ export default function MobileRootLayout({
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const privyConfigOverride = useMemo(
+    () => ({
+      // Required for Capacitor OAuth — tells Privy where to redirect after
+      // social login so the AppUrlListener can intercept the deep link
+      customOAuthRedirectUrl: OAUTH_REDIRECT_URL,
+    }),
+    []
+  );
 
   return (
     <html lang="en" suppressHydrationWarning className="overscroll-none">
@@ -47,7 +71,7 @@ export default function MobileRootLayout({
         <AppUrlListener />
 
         {mounted ? (
-          <Providers>
+          <Providers privyConfigOverride={privyConfigOverride}>
             <Toaster position="top-center" richColors />
             <Suspense fallback={null}>
               <GlobalLoginModal />

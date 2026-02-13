@@ -168,13 +168,21 @@ function PrivyProviderWrapper({
  * Syncs the app's resolved theme (from next-themes) to Privy's appearance config.
  * Must be rendered inside ThemeProvider so useTheme() has access to the context.
  */
-function ThemedPrivyProvider({ children }: { children: React.ReactNode }) {
+function ThemedPrivyProvider({
+  children,
+  configOverride,
+}: {
+  children: React.ReactNode;
+  configOverride?: Partial<PrivyClientConfig>;
+}) {
   const { resolvedTheme } = useTheme();
 
   const config = {
     ...privyConfig.config,
+    ...configOverride,
     appearance: {
       ...privyConfig.config.appearance,
+      ...configOverride?.appearance,
       theme: resolvedTheme === 'light' ? 'light' : 'dark',
     },
   } as PrivyClientConfig;
@@ -206,7 +214,14 @@ function ThemedPrivyProvider({ children }: { children: React.ReactNode }) {
  * @param props - Providers component props
  * @returns Providers wrapper element
  */
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  privyConfigOverride,
+}: {
+  children: React.ReactNode;
+  /** Optional Privy config overrides (e.g., customOAuthRedirectUrl for Capacitor mobile) */
+  privyConfigOverride?: Partial<PrivyClientConfig>;
+}) {
   const [mounted, setMounted] = useState(false);
 
   const [queryClient] = useState(
@@ -289,7 +304,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <FontSizeProvider>
                 <QueryClientProvider client={queryClient}>
                   <GamePlaybackManager />
-                  <ThemedPrivyProvider>
+                  <ThemedPrivyProvider configOverride={privyConfigOverride}>
                     <FarcasterMiniAppProvider>
                       {/* PostHog user identification */}
                       <PostHogIdentifier />
