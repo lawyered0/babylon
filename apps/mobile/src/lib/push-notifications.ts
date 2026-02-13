@@ -14,8 +14,8 @@
  * - A POST /api/notifications/register-device endpoint on the API server
  */
 
-import { isNativePlatform, getPlatform } from './platform';
 import { apiUrl } from '@/utils/api-url';
+import { getPlatform, isNativePlatform } from './platform';
 
 interface PushSetupOptions {
   /** Function to get the current auth token for API calls */
@@ -63,27 +63,21 @@ export async function initPushNotifications({
   });
 
   // Handle notification received while app is in foreground
-  PushNotifications.addListener(
-    'pushNotificationReceived',
-    (notification) => {
-      // Foreground notifications could be shown as an in-app toast
-      // For now, log them — the OS notification center handles background
-      console.debug('[Push] Foreground notification:', notification.title);
-    }
-  );
+  PushNotifications.addListener('pushNotificationReceived', (notification) => {
+    // Foreground notifications could be shown as an in-app toast
+    // For now, log them — the OS notification center handles background
+    console.debug('[Push] Foreground notification:', notification.title);
+  });
 
   // Handle notification tap (user tapped a notification from the OS)
-  PushNotifications.addListener(
-    'pushNotificationActionPerformed',
-    (action) => {
-      const data = action.notification.data as Record<string, string>;
-      // Navigate to the relevant screen based on notification data
-      const path = data?.path || data?.url;
-      if (path) {
-        navigate(path);
-      }
+  PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+    const data = action.notification.data as Record<string, string>;
+    // Navigate to the relevant screen based on notification data
+    const path = data?.path || data?.url;
+    if (path) {
+      navigate(path);
     }
-  );
+  });
 }
 
 /**
@@ -106,4 +100,3 @@ export async function unregisterPushNotifications(
     body: JSON.stringify({ platform: getPlatform() }),
   });
 }
-

@@ -60,4 +60,3 @@ export async function selectionChanged() {
   const haptics = await getHaptics();
   await haptics?.selectionChanged();
 }
-

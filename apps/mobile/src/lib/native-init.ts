@@ -9,9 +9,9 @@
  * - App lifecycle listeners
  */
 
+import { initAppLifecycle } from './deep-links';
 import { isNativePlatform } from './platform';
 import { setStatusBarStyle } from './status-bar';
-import { initAppLifecycle } from './deep-links';
 
 interface NativeInitOptions {
   theme: 'dark' | 'light';
@@ -54,4 +54,3 @@ export async function updateTheme(theme: 'dark' | 'light'): Promise<void> {
   if (!isNativePlatform()) return;
   await setStatusBarStyle(theme);
 }
-

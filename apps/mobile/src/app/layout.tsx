@@ -48,10 +48,7 @@ export default function MobileRootLayout({
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  const navigate = useCallback(
-    (path: string) => router.push(path),
-    [router]
-  );
+  const navigate = useCallback((path: string) => router.push(path), [router]);
 
   useEffect(() => setMounted(true), []);
 

@@ -5,7 +5,7 @@
  * and provides safe area awareness for notch/dynamic island/nav bar.
  */
 
-import { isNativePlatform, isAndroid } from './platform';
+import { isAndroid, isNativePlatform } from './platform';
 
 export type StatusBarStyle = 'dark' | 'light';
 
@@ -43,4 +43,3 @@ export async function enableEdgeToEdge(): Promise<void> {
   const { StatusBar } = await import('@capacitor/status-bar');
   await StatusBar.setOverlaysWebView({ overlay: true });
 }
-

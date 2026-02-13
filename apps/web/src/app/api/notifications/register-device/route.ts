@@ -71,4 +71,3 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   return NextResponse.json({ success: true });
 });
-
