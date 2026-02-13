@@ -16,6 +16,7 @@ import { BuyPointsModal } from '@/components/points/BuyPointsModal';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useWalletBalance } from '@/hooks/useWalletBalance';
+import { apiUrl } from '@/utils/api-url';
 
 interface Transaction {
   id: string;
@@ -174,9 +175,12 @@ function AgentWallet({
     setWalletLoading(true);
 
     try {
-      const walletRes = await fetch(`/api/agents/${agentId}/trading-balance`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const walletRes = await fetch(
+        apiUrl(`/api/agents/${agentId}/trading-balance`),
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!walletRes.ok) {
         logger.error(
@@ -241,14 +245,17 @@ function AgentWallet({
     }
 
     try {
-      const res = await fetch(`/api/agents/${agentId}/trading-balance`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, amount: amountNum }),
-      });
+      const res = await fetch(
+        apiUrl(`/api/agents/${agentId}/trading-balance`),
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action, amount: amountNum }),
+        }
+      );
 
       if (!res.ok) {
         const resClone = res.clone();

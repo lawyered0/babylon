@@ -8,6 +8,7 @@ import { MoreArticlesWidget } from '@/components/articles/MoreArticlesWidget';
 import { Response } from '@/components/chat/Response';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 interface ArticlePageProps {
   params: Promise<{ id: string }>;
@@ -46,7 +47,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       setError(null);
 
       // Fetch from posts API since articles are posts with type='article'
-      const response = await fetch(`/api/posts/${articleId}`);
+      const response = await fetch(apiUrl(`/api/posts/${articleId}`));
 
       if (!response.ok) {
         const result = await response.json().catch(() => ({}));

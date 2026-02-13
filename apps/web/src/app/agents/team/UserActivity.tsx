@@ -8,6 +8,7 @@ import {
 import { Activity } from 'lucide-react';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /** Activity types from the API */
 interface TradeActivity {
@@ -398,9 +399,12 @@ export function UserActivity({ userId, className }: UserActivityProps) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/users/${userId}/activity?limit=50`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        apiUrl(`/api/users/${userId}/activity?limit=50`),
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));

@@ -10,6 +10,7 @@ import { PostCard } from '@/components/posts/PostCard';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useInteractionStore } from '@/stores/interactionStore';
+import { apiUrl } from '@/utils/api-url';
 
 const WidgetSidebar = dynamic(
   () =>
@@ -89,7 +90,7 @@ export default function PostPage({ params }: PostPageProps) {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/posts/${postId}`);
+      const response = await fetch(apiUrl(`/api/posts/${postId}`));
       const result = await response.json();
 
       const postData = result.data || result;

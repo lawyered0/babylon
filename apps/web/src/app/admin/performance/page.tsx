@@ -7,6 +7,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 // Simple replacement components
 const Card = ({
@@ -174,7 +175,7 @@ export default function AdminPerformancePage() {
 
   // Fetch network stats
   const fetchStats = useCallback(async () => {
-    const response = await fetch('/api/admin/network-stats');
+    const response = await fetch(apiUrl('/api/admin/network-stats'));
 
     if (!response.ok) {
       throw new Error('Failed to fetch stats');
@@ -187,7 +188,7 @@ export default function AdminPerformancePage() {
 
   // Fetch load test status
   const fetchLoadTestStatus = useCallback(async () => {
-    const response = await fetch('/api/admin/load-test/status');
+    const response = await fetch(apiUrl('/api/admin/load-test/status'));
 
     if (!response.ok) {
       throw new Error('Failed to fetch load test status');
@@ -202,7 +203,7 @@ export default function AdminPerformancePage() {
     setIsLoading(true);
     setError(null);
 
-    const response = await fetch('/api/admin/load-test', {
+    const response = await fetch(apiUrl('/api/admin/load-test'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scenario: selectedScenario }),

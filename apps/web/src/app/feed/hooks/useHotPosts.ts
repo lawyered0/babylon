@@ -1,5 +1,6 @@
 import { type FeedPost, logger } from '@babylon/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 interface UseHotPostsOptions {
   enabled?: boolean;
@@ -35,7 +36,9 @@ export function useHotPosts(
       if (showLoading) setLoading(true);
 
       try {
-        const response = await fetch('/api/feed/hot?limit=50', { signal });
+        const response = await fetch(apiUrl('/api/feed/hot?limit=50'), {
+          signal,
+        });
 
         // Check if aborted after fetch
         if (signal?.aborted) return;

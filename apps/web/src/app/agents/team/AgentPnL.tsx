@@ -16,6 +16,7 @@ import {
   usePerpPositions,
   usePredictionPositions,
 } from '@/stores/userPositionsStore';
+import { apiUrl } from '@/utils/api-url';
 
 /** Portfolio breakdown snapshot (matches profile page calculation) */
 interface PortfolioSnapshot {
@@ -510,7 +511,7 @@ function AgentPnLView({
     setLoading(true);
 
     try {
-      const agentRes = await fetch(`/api/agents/${agentId}`, {
+      const agentRes = await fetch(apiUrl(`/api/agents/${agentId}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
 

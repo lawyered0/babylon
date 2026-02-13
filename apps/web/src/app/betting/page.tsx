@@ -29,6 +29,7 @@ import {
   type PredictionMarket,
   usePredictionMarkets,
 } from '@/stores/predictionMarketsStore';
+import { apiUrl } from '@/utils/api-url';
 
 export default function OnChainBettingPage() {
   const router = useRouter();
@@ -101,16 +102,19 @@ export default function OnChainBettingPage() {
     });
 
     // Verify with backend
-    await fetch(`/api/markets/predictions/${selectedMarket.id}/buy-onchain`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        side: betSide.toLowerCase(),
-        numShares: shares,
-        txHash: result.txHash,
-        walletAddress: embeddedWalletAddress,
-      }),
-    });
+    await fetch(
+      apiUrl(`/api/markets/predictions/${selectedMarket.id}/buy-onchain`),
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          side: betSide.toLowerCase(),
+          numShares: shares,
+          txHash: result.txHash,
+          walletAddress: embeddedWalletAddress,
+        }),
+      }
+    );
 
     setSelectedMarket(null);
     setBetAmount('');

@@ -63,6 +63,7 @@ import { Separator } from '@/components/shared/Separator';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamChat } from '@/hooks/useTeamChat';
+import { apiUrl } from '@/utils/api-url';
 import { AgentPnL } from './AgentPnL';
 import { AgentPortfolio } from './AgentPortfolio';
 import {
@@ -323,7 +324,7 @@ export default function TeamChatPage() {
       }
 
       try {
-        const res = await fetch(`/api/agents/${agentId}`, {
+        const res = await fetch(apiUrl(`/api/agents/${agentId}`), {
           headers: { Authorization: `Bearer ${token}` },
         });
 

@@ -9,6 +9,7 @@ import { Avatar } from '@/components/shared/Avatar';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
 import type { NftDetail, NftDetailResponse } from '@/types/nft';
+import { apiUrl } from '@/utils/api-url';
 
 export default function NftDetailPage() {
   const params = useParams();
@@ -23,7 +24,7 @@ export default function NftDetailPage() {
     setLoading(true);
     setError(null);
 
-    const response = await fetch(`/api/nft/${tokenId}`);
+    const response = await fetch(apiUrl(`/api/nft/${tokenId}`));
 
     if (!response.ok) {
       if (response.status === 404) {

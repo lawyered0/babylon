@@ -13,6 +13,7 @@ import { PageContainer } from '@/components/shared/PageContainer';
 import { PullToRefreshIndicator } from '@/components/shared/PullToRefreshIndicator';
 import { useAuth } from '@/hooks/useAuth';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { apiUrl } from '@/utils/api-url';
 
 const WidgetSidebar = dynamic(
   () =>
@@ -84,12 +85,12 @@ export default function NotificationsPage() {
       }
 
       const [notifResponse, invitesResponse] = await Promise.all([
-        fetch('/api/notifications?limit=100', {
+        fetch(apiUrl('/api/notifications?limit=100'), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch('/api/groups/invites', {
+        fetch(apiUrl('/api/groups/invites'), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -173,7 +174,7 @@ export default function NotificationsPage() {
       setUnreadCount((prev) => Math.max(0, prev - 1));
 
       // Then make the API call
-      const response = await fetch('/api/notifications', {
+      const response = await fetch(apiUrl('/api/notifications'), {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,

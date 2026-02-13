@@ -3,6 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 import { AgentSettingsSidebar } from './AgentSettingsSidebar';
 
 interface AgentSettingsData {
@@ -57,7 +58,7 @@ export function AgentSettingsPanel({
 
       let res: Response | undefined;
       try {
-        res = await fetch(`/api/agents/${agentId}`, {
+        res = await fetch(apiUrl(`/api/agents/${agentId}`), {
           headers: { Authorization: `Bearer ${token}` },
           signal,
         });

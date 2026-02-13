@@ -15,6 +15,7 @@ import { useErrorToasts } from '@/hooks/useErrorToasts';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useFeedStore } from '@/stores/feedStore';
 import { useGameStore } from '@/stores/gameStore';
+import { apiUrl } from '@/utils/api-url';
 import { EmptyFeed, PostList } from './components';
 import { useFeedPosts, useFollowingPosts, useHotPosts } from './hooks';
 
@@ -157,7 +158,7 @@ export function FeedClient() {
   // Load actor names
   useEffect(() => {
     const loadActorNames = async () => {
-      const response = await fetch('/api/actors');
+      const response = await fetch(apiUrl('/api/actors'));
       if (!response.ok) return;
       const data = (await response.json()) as {
         actors?: Array<{ id: string; name: string }>;

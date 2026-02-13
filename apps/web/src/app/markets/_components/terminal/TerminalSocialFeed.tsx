@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PostList } from '@/app/feed/components/PostList';
 import { useFeedPosts } from '@/app/feed/hooks/useFeedPosts';
 import { FeedSkeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 interface TerminalSocialFeedProps {
   perpTicker?: string | null;
@@ -45,7 +46,7 @@ export function TerminalSocialFeed({ perpTicker }: TerminalSocialFeedProps) {
   useEffect(() => {
     const controller = new AbortController();
     const loadActorNames = async () => {
-      const response = await fetch('/api/actors', {
+      const response = await fetch(apiUrl('/api/actors'), {
         signal: controller.signal,
       }).catch(() => null);
       if (!response) return;

@@ -4,6 +4,7 @@ import { cn } from '@babylon/shared';
 import { Activity } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { PageContainer } from '@/components/shared/PageContainer';
+import { apiUrl } from '@/utils/api-url';
 
 interface GameStats {
   totalPosts: number;
@@ -28,7 +29,7 @@ export default function GamePage() {
 
   const loadGameData = useCallback(async () => {
     setRefreshing(true);
-    const response = await fetch('/api/stats');
+    const response = await fetch(apiUrl('/api/stats'));
     if (!response.ok) {
       setError('Failed to load game data');
       setLoading(false);

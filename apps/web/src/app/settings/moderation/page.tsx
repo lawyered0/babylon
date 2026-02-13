@@ -14,6 +14,7 @@ import { Avatar } from '@/components/shared/Avatar';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 interface BlockedUser {
   id: string;
@@ -49,7 +50,7 @@ export default function ModerationSettingsPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchBlockedUsers = useCallback(async () => {
-    const response = await fetch('/api/moderation/blocks');
+    const response = await fetch(apiUrl('/api/moderation/blocks'));
     if (!response.ok) {
       toast.error('Failed to load blocked users');
       setLoading(false);
@@ -62,7 +63,7 @@ export default function ModerationSettingsPage() {
   }, []);
 
   const fetchMutedUsers = useCallback(async () => {
-    const response = await fetch('/api/moderation/mutes');
+    const response = await fetch(apiUrl('/api/moderation/mutes'));
     if (!response.ok) {
       toast.error('Failed to load muted users');
       return;
@@ -80,7 +81,7 @@ export default function ModerationSettingsPage() {
   }, [authenticated, fetchBlockedUsers, fetchMutedUsers]);
 
   const handleUnblock = async (userId: string, displayName: string) => {
-    const response = await fetch(`/api/users/${userId}/block`, {
+    const response = await fetch(apiUrl(`/api/users/${userId}/block`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'unblock' }),
@@ -96,7 +97,7 @@ export default function ModerationSettingsPage() {
   };
 
   const handleUnmute = async (userId: string, displayName: string) => {
-    const response = await fetch(`/api/users/${userId}/mute`, {
+    const response = await fetch(apiUrl(`/api/users/${userId}/mute`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'unmute' }),

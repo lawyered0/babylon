@@ -28,6 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { apiUrl } from '@/utils/api-url';
 
 interface ModelInfo {
   modelId: string;
@@ -112,28 +113,30 @@ export default function RLTrainingDashboard() {
     setError(null);
 
     // Fetch models
-    const modelsRes = await fetch('/api/admin/training/models');
+    const modelsRes = await fetch(apiUrl('/api/admin/training/models'));
     const modelsData = await modelsRes.json();
     if (modelsData.models) {
       setModels(modelsData.models);
     }
 
     // Fetch benchmark summary
-    const benchmarkRes = await fetch('/api/admin/training/benchmark');
+    const benchmarkRes = await fetch(apiUrl('/api/admin/training/benchmark'));
     const benchmarkData = await benchmarkRes.json();
     if (benchmarkData.summary) {
       setBenchmarkSummary(benchmarkData.summary);
     }
 
     // Fetch model selection
-    const selectionRes = await fetch('/api/admin/training/model-selection');
+    const selectionRes = await fetch(
+      apiUrl('/api/admin/training/model-selection')
+    );
     const selectionData = await selectionRes.json();
     if (selectionData.success) {
       setModelSelection(selectionData);
     }
 
     // Fetch training status
-    const statusRes = await fetch('/api/admin/training/trigger');
+    const statusRes = await fetch(apiUrl('/api/admin/training/trigger'));
     const statusData = await statusRes.json();
     if (statusData) {
       setTrainingStatus(statusData);
@@ -145,7 +148,7 @@ export default function RLTrainingDashboard() {
   // Trigger training
   const triggerTraining = async (force = false) => {
     setActionStatus('Triggering training...');
-    const res = await fetch('/api/admin/training/trigger', {
+    const res = await fetch(apiUrl('/api/admin/training/trigger'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ force }),
@@ -164,7 +167,7 @@ export default function RLTrainingDashboard() {
   // Benchmark a model
   const benchmarkModel = async (modelId: string) => {
     setActionStatus(`Benchmarking ${modelId}...`);
-    const res = await fetch('/api/admin/training/benchmark', {
+    const res = await fetch(apiUrl('/api/admin/training/benchmark'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ modelId, compare: true }),

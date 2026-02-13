@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 type PendingResolution = {
   id: string;
@@ -89,7 +90,7 @@ export default function AdminResolutionsPage() {
 
     // Check admin access by attempting to fetch the resolution queue
     try {
-      const res = await fetch('/api/admin/resolutions');
+      const res = await fetch(apiUrl('/api/admin/resolutions'));
       if (!res.ok) {
         setIsAuthorized(false);
         setLoading(false);
@@ -110,7 +111,7 @@ export default function AdminResolutionsPage() {
     if (!isAuthorized) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/resolutions');
+      const res = await fetch(apiUrl('/api/admin/resolutions'));
       let data: unknown;
       try {
         data = await res.json();
@@ -150,7 +151,7 @@ export default function AdminResolutionsPage() {
     async (id: string, action: 'approve' | 'reject') => {
       setSubmittingId(id);
       try {
-        const res = await fetch(`/api/admin/resolutions/${id}`, {
+        const res = await fetch(apiUrl(`/api/admin/resolutions/${id}`), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action }),
