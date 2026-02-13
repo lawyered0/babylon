@@ -275,7 +275,9 @@ export function useMarketsPageData(): MarketsPageData {
     const isAuth = authenticatedRef.current;
     const userId = userIdRef.current;
 
-    const url = apiUrl(`/api/markets/predictions${isAuth && userId ? `?userId=${encodeURIComponent(userId)}` : ''}`);
+    const url = apiUrl(
+      `/api/markets/predictions${isAuth && userId ? `?userId=${encodeURIComponent(userId)}` : ''}`
+    );
 
     try {
       const response = await fetch(url, { signal });
