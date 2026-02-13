@@ -2,6 +2,7 @@
 
 import type { UserBalanceDataAPI } from '@babylon/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Represents wallet balance state.
@@ -85,7 +86,7 @@ export function useWalletBalance(
     let response: Response;
     try {
       response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/balance`,
+        apiUrl(`/api/users/${encodeURIComponent(userId)}/balance`),
         {
           signal: controller.signal,
         }

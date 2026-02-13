@@ -5,6 +5,7 @@ import { Check, X as XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Share verification modal component for verifying external shares.
@@ -65,7 +66,7 @@ export function ShareVerificationModal({
     }
 
     const response = await fetch(
-      `/api/users/${encodeURIComponent(userId)}/verify-share`,
+      apiUrl(`/api/users/${encodeURIComponent(userId)}/verify-share`),
       {
         method: 'POST',
         headers,

@@ -31,6 +31,7 @@ import { Skeleton } from '@/components/shared/Skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 import { uploadImage, validateImageFile } from '@/utils/upload-image';
 
 /**
@@ -234,7 +235,7 @@ export default function SettingsPage() {
     }
 
     const response = await fetch(
-      `/api/users/${encodeURIComponent(user.id)}/update-visibility`,
+      apiUrl(`/api/users/${encodeURIComponent(user.id)}/update-visibility`),
       {
         method: 'POST',
         headers,
@@ -329,7 +330,7 @@ export default function SettingsPage() {
     let response: Response;
     try {
       response = await fetch(
-        `/api/users/${encodeURIComponent(user.id)}/update-profile`,
+        apiUrl(`/api/users/${encodeURIComponent(user.id)}/update-profile`),
         {
           method: 'POST',
           headers,

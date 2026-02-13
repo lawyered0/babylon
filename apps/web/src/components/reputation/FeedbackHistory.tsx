@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Feedback item structure for feedback history.
@@ -88,7 +89,7 @@ export function FeedbackHistory({
         includeAuto: showAutoFeedback.toString(),
       });
       const response = await fetch(
-        `/api/feedback/received/${encodeURIComponent(userId)}?${params}`
+        apiUrl(`/api/feedback/received/${encodeURIComponent(userId)}?${params}`)
       );
       const data = await response.json();
 
@@ -277,7 +278,7 @@ export function FeedbackSummaryCard({
   useEffect(() => {
     const fetchStats = async () => {
       const response = await fetch(
-        `/api/feedback/stats/${encodeURIComponent(userId)}`
+        apiUrl(`/api/feedback/stats/${encodeURIComponent(userId)}`)
       );
       const data = await response.json();
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { usePredictionMarketStream } from '@/hooks/usePredictionMarketStream';
 import type { MarketTimeRange } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Represents a single point in prediction market price history.
@@ -201,7 +202,9 @@ export function usePredictionHistory(
         params.set('range', range);
       }
       const response = await fetch(
-        `/api/markets/predictions/${encodeURIComponent(marketId)}/history?${params.toString()}`
+        apiUrl(
+          `/api/markets/predictions/${encodeURIComponent(marketId)}/history?${params.toString()}`
+        )
       );
 
       let data: unknown = null;

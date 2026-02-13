@@ -38,6 +38,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Position structure for NPC portfolio.
@@ -99,7 +100,7 @@ export function NPCPortfolioCard({
     const fetchPortfolio = async () => {
       setLoading(true);
       const response = await fetch(
-        `/api/npc/${encodeURIComponent(actorId)}/portfolio`
+        apiUrl(`/api/npc/${encodeURIComponent(actorId)}/portfolio`)
       );
       const result = await response.json();
 

@@ -10,6 +10,7 @@ import type {
   ApiErrorResponse,
   SellSharesSuccessResponse,
 } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 import {
   type SellPredictionDetails,
   TradeConfirmationDialog,
@@ -102,7 +103,7 @@ export function PredictionPositionsList({
 
     try {
       const response = await fetch(
-        `/api/markets/predictions/${position.marketId}/sell`,
+        apiUrl(`/api/markets/predictions/${position.marketId}/sell`),
         {
           method: 'POST',
           headers: {

@@ -1,6 +1,7 @@
 import type { FeedPost } from '@babylon/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSSEChannel } from '@/hooks/useSSE';
+import { apiUrl } from '@/utils/api-url';
 
 const PAGE_SIZE = 20;
 
@@ -86,8 +87,10 @@ export function useFeedPosts(
       };
 
       const url = requestCursor
-        ? `/api/posts?limit=${PAGE_SIZE}&cursor=${encodeURIComponent(requestCursor)}`
-        : `/api/posts?limit=${PAGE_SIZE}`;
+        ? apiUrl(
+            `/api/posts?limit=${PAGE_SIZE}&cursor=${encodeURIComponent(requestCursor)}`
+          )
+        : apiUrl(`/api/posts?limit=${PAGE_SIZE}`);
 
       let response: Response;
       try {

@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePostHog } from '@/hooks/usePostHog';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Bottom navigation content component for mobile devices.
@@ -46,7 +47,7 @@ function BottomNavContent() {
       }
 
       const response = await fetch(
-        '/api/notifications?unreadOnly=true&limit=1',
+        apiUrl('/api/notifications?unreadOnly=true&limit=1'),
         {
           headers: {
             Authorization: `Bearer ${token}`,

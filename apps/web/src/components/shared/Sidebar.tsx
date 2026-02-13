@@ -29,6 +29,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePostHog } from '@/hooks/usePostHog';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Main sidebar content component with navigation and user menu.
@@ -94,7 +95,7 @@ function SidebarContent() {
       }
 
       const response = await fetch(
-        '/api/notifications?unreadOnly=true&limit=1',
+        apiUrl('/api/notifications?unreadOnly=true&limit=1'),
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -18,6 +18,7 @@ import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 // Lazy load activity feed for performance
 const AgentActivityFeed = dynamic(
@@ -81,7 +82,7 @@ export default function AgentsPage() {
       return;
     }
 
-    let url = '/api/agents';
+    let url = apiUrl('/api/agents');
     if (filter === 'active') {
       url += '?autonomousTrading=true';
     } else if (filter === 'idle') {

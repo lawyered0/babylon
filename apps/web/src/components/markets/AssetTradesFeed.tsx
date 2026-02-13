@@ -19,6 +19,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { usePredictionMarketStream } from '@/hooks/usePredictionMarketStream';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Page size for pagination in trades feed.
@@ -177,9 +178,9 @@ export function AssetTradesFeed({
   // Build API endpoint based on market type
   const apiEndpoint = useMemo(() => {
     if (marketType === 'prediction') {
-      return `/api/markets/predictions/${assetId}/trades`;
+      return apiUrl(`/api/markets/predictions/${assetId}/trades`);
     }
-    return `/api/markets/perps/trades/${assetId}`;
+    return apiUrl(`/api/markets/perps/trades/${assetId}`);
   }, [marketType, assetId]);
 
   // Fetch trades from API

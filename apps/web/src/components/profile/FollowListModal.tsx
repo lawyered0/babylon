@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Avatar } from '@/components/shared/Avatar';
 import { VerifiedBadge } from '@/components/shared/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * FollowListModal component for displaying followers or following lists.
@@ -100,7 +101,9 @@ export function FollowListModal({
       }
 
       const response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/${type}?page=1&limit=100`,
+        apiUrl(
+          `/api/users/${encodeURIComponent(userId)}/${type}?page=1&limit=100`
+        ),
         { headers, signal: abortController.signal }
       );
 
@@ -213,7 +216,7 @@ export function FollowListModal({
 
     try {
       const response = await fetch(
-        `/api/users/${encodeURIComponent(targetUserId)}/follow`,
+        apiUrl(`/api/users/${encodeURIComponent(targetUserId)}/follow`),
         {
           method,
           headers: {

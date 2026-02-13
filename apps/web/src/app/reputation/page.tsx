@@ -5,6 +5,7 @@ import { Award, Medal, Target, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 interface ReputationStats {
   currentReputation: number;
@@ -42,7 +43,7 @@ export default function ReputationPage() {
     const fetchReputation = async () => {
       setLoading(true);
       const response = await fetch(
-        `/api/reputation/${encodeURIComponent(user.id)}`
+        apiUrl(`/api/reputation/${encodeURIComponent(user.id)}`)
       );
       if (!response.ok) {
         setStats(emptyStats);

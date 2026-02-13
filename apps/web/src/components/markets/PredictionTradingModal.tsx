@@ -29,6 +29,7 @@ import {
   useWalletBalance,
 } from '@/stores/walletBalanceStore';
 import type { PredictionMarket } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Props for the PredictionTradingModal component.
@@ -221,7 +222,7 @@ export function PredictionTradingModal({
 
     try {
       const response = await fetch(
-        `/api/markets/predictions/${question.id}/buy`,
+        apiUrl(`/api/markets/predictions/${question.id}/buy`),
         {
           method: 'POST',
           headers: {
@@ -304,7 +305,7 @@ export function PredictionTradingModal({
 
     try {
       const response = await fetch(
-        `/api/markets/predictions/${question.id}/sell`,
+        apiUrl(`/api/markets/predictions/${question.id}/sell`),
         {
           method: 'POST',
           headers: {

@@ -2,6 +2,7 @@ import type { FeedPost } from '@babylon/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 const PAGE_SIZE = 20;
 
@@ -51,7 +52,9 @@ export function useFollowingPosts(
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
       const response = await fetch(
-        `/api/posts?following=true&userId=${userId}&limit=${PAGE_SIZE}&offset=0`,
+        apiUrl(
+          `/api/posts?following=true&userId=${userId}&limit=${PAGE_SIZE}&offset=0`
+        ),
         { headers }
       );
 

@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 // Re-export for components that import from this hook
 export type { PortfolioBreakdownSnapshot } from '@babylon/engine/client';
 
+import { apiUrl } from '@/utils/api-url';
+
 /**
  * Return type for the usePortfolioPnL hook.
  */
@@ -93,7 +95,7 @@ export function usePortfolioPnL(): UsePortfolioPnLResult {
     setError(null);
 
     const breakdownRes = await fetch(
-      `/api/users/${encodeURIComponent(user.id)}/portfolio-breakdown`,
+      apiUrl(`/api/users/${encodeURIComponent(user.id)}/portfolio-breakdown`),
       { signal: abortController.signal }
     );
 

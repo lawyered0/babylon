@@ -9,6 +9,7 @@ import type {
 } from '@/components/waitlist/types';
 import { useAuth } from '@/hooks/useAuth';
 import { apiFetch } from '@/utils/api-fetch';
+import { apiUrl } from '@/utils/api-url';
 
 interface UseWaitlistDataOptions {
   authenticated: boolean;
@@ -80,7 +81,9 @@ export function useWaitlistData({
         if (shouldFetchLeaderboard) {
           requests.push(
             fetch(
-              `/api/waitlist/leaderboard?page=1&limit=10&pointsType=${pointsType}`
+              apiUrl(
+                `/api/waitlist/leaderboard?page=1&limit=10&pointsType=${pointsType}`
+              )
             )
           );
         }
@@ -191,7 +194,9 @@ export function useWaitlistData({
       const pointsType = getPointsTypeForTab(tab);
       try {
         const response = await fetch(
-          `/api/waitlist/leaderboard?page=${page}&limit=10&pointsType=${pointsType}`
+          apiUrl(
+            `/api/waitlist/leaderboard?page=${page}&limit=10&pointsType=${pointsType}`
+          )
         );
         if (!response.ok) {
           logger.warn(

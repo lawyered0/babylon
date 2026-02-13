@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import type { Address } from 'viem';
 import { useAuth } from '@/hooks/useAuth';
 import { useWalletFunding } from '@/hooks/useWalletFunding';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Admin send money modal component for sending ETH to users.
@@ -268,7 +269,7 @@ export function AdminSendMoneyModal({
 
       // Create escrow payment request with abort signal
       const response = await fetch(
-        '/api/admin/moderation-escrow/create-payment',
+        apiUrl('/api/admin/moderation-escrow/create-payment'),
         {
           method: 'POST',
           headers: {
@@ -446,7 +447,7 @@ export function AdminSendMoneyModal({
 
     try {
       const response = await fetch(
-        '/api/admin/moderation-escrow/verify-payment',
+        apiUrl('/api/admin/moderation-escrow/verify-payment'),
         {
           method: 'POST',
           headers: {

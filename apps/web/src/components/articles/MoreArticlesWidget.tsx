@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 interface ArticlePreview {
   id: string;
@@ -39,7 +40,7 @@ export function MoreArticlesWidget({
       setIsLoading(true);
 
       const response = await fetch(
-        `/api/posts?type=article&limit=${limit + 1}`
+        apiUrl(`/api/posts?type=article&limit=${limit + 1}`)
       );
 
       if (!response.ok) {

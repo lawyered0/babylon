@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { z } from 'zod';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Participant schema for validation.
@@ -99,7 +100,7 @@ export function GroupsTab() {
       }
 
       const response = await fetch(
-        `/api/admin/groups?sortBy=${sortBy}&sortOrder=${sortOrder}`,
+        apiUrl(`/api/admin/groups?sortBy=${sortBy}&sortOrder=${sortOrder}`),
         {
           headers: {
             Authorization: `Bearer ${token}`,

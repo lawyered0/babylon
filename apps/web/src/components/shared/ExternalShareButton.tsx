@@ -22,6 +22,7 @@ import { Check, Link as LinkIcon, Share2, Twitter } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 import { ShareVerificationModal } from './ShareVerificationModal';
 
 // Farcaster icon component
@@ -87,7 +88,9 @@ export function ExternalShareButton({
       if (!token) return;
 
       const response = await fetch(
-        `/api/users/${encodeURIComponent(user.id)}/share?contentType=${contentType}`,
+        apiUrl(
+          `/api/users/${encodeURIComponent(user.id)}/share?contentType=${contentType}`
+        ),
         {
           headers: {
             Authorization: `Bearer ${token}`,

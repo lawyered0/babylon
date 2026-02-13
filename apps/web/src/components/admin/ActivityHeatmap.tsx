@@ -19,6 +19,7 @@ import {
   useTransition,
 } from 'react';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 type HeatmapType = 'hourly' | 'calendar';
 type ActivityType = 'all' | 'trades' | 'posts' | 'messages';
@@ -127,7 +128,9 @@ export function ActivityHeatmap() {
       const fetchLogic = async () => {
         setError(null);
         const response = await fetch(
-          `/api/admin/stats/heatmap?type=${heatmapType}&activityType=${activityType}`
+          apiUrl(
+            `/api/admin/stats/heatmap?type=${heatmapType}&activityType=${activityType}`
+          )
         );
         if (!response.ok) {
           setData(null);

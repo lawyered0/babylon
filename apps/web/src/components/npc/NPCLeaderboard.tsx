@@ -31,6 +31,7 @@
 import { BABYLON_POINTS_SYMBOL, cn } from '@babylon/shared';
 import { Activity, TrendingDown, TrendingUp, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Performance metrics structure for NPC leaderboard.
@@ -87,7 +88,9 @@ export function NPCLeaderboard({
     const fetchLeaderboard = async () => {
       setLoading(true);
       const response = await fetch(
-        `/api/npc/performance/leaderboard?limit=${limit}&minValue=${minValue}`
+        apiUrl(
+          `/api/npc/performance/leaderboard?limit=${limit}&minValue=${minValue}`
+        )
       );
       const result = await response.json();
 

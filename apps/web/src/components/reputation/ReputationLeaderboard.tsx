@@ -30,6 +30,7 @@
 import { cn } from '@babylon/shared';
 import { Target, TrendingUp, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Leaderboard entry structure for reputation leaderboard.
@@ -83,7 +84,9 @@ export function ReputationLeaderboard({
     const fetchLeaderboard = async () => {
       setLoading(true);
       const response = await fetch(
-        `/api/reputation/leaderboard?limit=${limit}&minGames=${minGames}`
+        apiUrl(
+          `/api/reputation/leaderboard?limit=${limit}&minGames=${minGames}`
+        )
       );
       const result = await response.json();
 

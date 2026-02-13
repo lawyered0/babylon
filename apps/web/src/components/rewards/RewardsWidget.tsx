@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Avatar } from '@/components/shared/Avatar';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Referred user structure for rewards widget.
@@ -115,7 +116,7 @@ export function RewardsWidget({ userId }: RewardsWidgetProps) {
       }
 
       const response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/referrals`,
+        apiUrl(`/api/users/${encodeURIComponent(userId)}/referrals`),
         {
           headers: {
             Authorization: `Bearer ${token}`,

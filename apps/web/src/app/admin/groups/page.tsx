@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { z } from 'zod';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Participant schema for validation.
@@ -87,7 +88,7 @@ export default function AdminGroupsPage() {
       setError(null);
 
       const response = await fetch(
-        `/api/admin/groups?sortBy=${sortBy}&sortOrder=${sortOrder}`
+        apiUrl(`/api/admin/groups?sortBy=${sortBy}&sortOrder=${sortOrder}`)
       ).catch((err: Error) => {
         console.error('Failed to fetch groups:', err);
         setError('Failed to fetch groups. Are you on localhost?');

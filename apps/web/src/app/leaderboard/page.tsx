@@ -16,6 +16,7 @@ import { RankNumber } from '@/components/shared/RankBadge';
 import { LeaderboardSkeleton } from '@/components/shared/Skeleton';
 import { VerifiedBadge } from '@/components/shared/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 // Lazy load sidebar - only needed on desktop
 const LeaderboardWidgetSidebar = dynamic(
@@ -83,7 +84,9 @@ export default function LeaderboardPage() {
       setError(null);
 
       const response = await fetch(
-        `/api/leaderboard?page=${currentPage}&pageSize=${pageSize}&minPoints=${minPoints}&pointsType=${selectedTab}`
+        apiUrl(
+          `/api/leaderboard?page=${currentPage}&pageSize=${pageSize}&minPoints=${minPoints}&pointsType=${selectedTab}`
+        )
       );
 
       if (!response.ok) {

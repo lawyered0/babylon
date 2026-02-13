@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PostCard } from '@/components/posts/PostCard';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 const WidgetSidebar = dynamic(
   () =>
@@ -58,7 +59,9 @@ export default function TrendingTagPage() {
       else setLoading(true);
 
       const response = await fetch(
-        `/api/trending/${encodeURIComponent(tag)}?limit=${PAGE_SIZE}&offset=${requestOffset}`
+        apiUrl(
+          `/api/trending/${encodeURIComponent(tag)}?limit=${PAGE_SIZE}&offset=${requestOffset}`
+        )
       );
 
       if (!response.ok) {

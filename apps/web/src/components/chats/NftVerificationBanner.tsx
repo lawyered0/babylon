@@ -5,6 +5,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Check, ExternalLink, Loader2, Shield } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { apiUrl } from '@/utils/api-url';
 import type { ChatDetails } from './types';
 
 interface NftVerificationBannerProps {
@@ -50,7 +51,7 @@ export function NftVerificationBanner({
     }
 
     const response = await fetch(
-      `/api/chats/${chatDetails.chat.id}/nft-verification`,
+      apiUrl(`/api/chats/${chatDetails.chat.id}/nft-verification`),
       {
         headers: { Authorization: `Bearer ${token}` },
       }

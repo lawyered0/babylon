@@ -3,6 +3,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type MessageType, MessageTypeEnum } from '@/components/chats/types';
 import { CHAT_PAGE_SIZE } from '@/lib/constants';
+import { apiUrl } from '@/utils/api-url';
 import { useSSEChannel } from './useSSE';
 
 /**
@@ -211,7 +212,7 @@ export function useChatMessages(chatId: string | null) {
       }
 
       const response = await fetch(
-        `/api/chats/${chatId}?limit=${CHAT_PAGE_SIZE}`,
+        apiUrl(`/api/chats/${chatId}?limit=${CHAT_PAGE_SIZE}`),
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -266,7 +267,9 @@ export function useChatMessages(chatId: string | null) {
     }
 
     const response = await fetch(
-      `/api/chats/${chatId}?cursor=${nextCursor}&limit=${CHAT_PAGE_SIZE}`,
+      apiUrl(
+        `/api/chats/${chatId}?cursor=${nextCursor}&limit=${CHAT_PAGE_SIZE}`
+      ),
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -378,7 +381,7 @@ export function useChatMessages(chatId: string | null) {
           if (!token) return;
 
           const response = await fetch(
-            `/api/chats/${chatId}?limit=${CHAT_PAGE_SIZE}`,
+            apiUrl(`/api/chats/${chatId}?limit=${CHAT_PAGE_SIZE}`),
             {
               headers: {
                 Authorization: `Bearer ${token}`,

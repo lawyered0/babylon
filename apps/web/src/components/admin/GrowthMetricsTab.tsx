@@ -49,6 +49,7 @@ import {
 } from 'recharts';
 import { ActivityHeatmap } from '@/components/admin/ActivityHeatmap';
 import { Skeleton } from '@/components/shared/Skeleton';
+import { apiUrl } from '@/utils/api-url';
 
 type Period = 'day' | 'week' | 'month';
 
@@ -162,7 +163,9 @@ export function GrowthMetricsTab() {
       const fetchLogic = async () => {
         setError(null);
         const response = await fetch(
-          `/api/admin/stats/growth?period=${period}&includeTimeSeries=true`
+          apiUrl(
+            `/api/admin/stats/growth?period=${period}&includeTimeSeries=true`
+          )
         );
         if (!response.ok) {
           setData(null);

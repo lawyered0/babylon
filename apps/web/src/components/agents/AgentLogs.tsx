@@ -4,6 +4,7 @@ import { cn, logger } from '@babylon/shared';
 import { FileText, Filter } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Log structure for agent logs.
@@ -64,7 +65,7 @@ export function AgentLogs({ agentId }: AgentLogsProps) {
       return;
     }
 
-    let url = `/api/agents/${agentId}/logs?limit=100`;
+    let url = apiUrl(`/api/agents/${agentId}/logs?limit=100`);
     if (typeFilter !== 'all') url += `&type=${typeFilter}`;
     if (levelFilter !== 'all') url += `&level=${levelFilter}`;
 

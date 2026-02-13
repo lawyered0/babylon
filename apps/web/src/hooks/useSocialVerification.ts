@@ -4,6 +4,7 @@ import { logger, signInWithFarcaster } from '@babylon/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 interface UseSocialVerificationOptions {
   authenticated: boolean;
@@ -151,7 +152,7 @@ export function useSocialVerification({
 
       const token = await getAccessToken();
       const response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/link-farcaster`,
+        apiUrl(`/api/users/${encodeURIComponent(userId)}/link-farcaster`),
         {
           method: 'POST',
           headers: {
@@ -256,7 +257,9 @@ export function useSocialVerification({
     try {
       const token = await getAccessToken();
       const response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/verify-farcaster-follow`,
+        apiUrl(
+          `/api/users/${encodeURIComponent(userId)}/verify-farcaster-follow`
+        ),
         {
           method: 'POST',
           headers: {
@@ -335,7 +338,9 @@ export function useSocialVerification({
     try {
       const token = await getAccessToken();
       const response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/verify-twitter-follow`,
+        apiUrl(
+          `/api/users/${encodeURIComponent(userId)}/verify-twitter-follow`
+        ),
         {
           method: 'POST',
           headers: {
@@ -411,7 +416,7 @@ export function useSocialVerification({
     try {
       const token = await getAccessToken();
       const response = await fetch(
-        `/api/users/${encodeURIComponent(userId)}/verify-discord-join`,
+        apiUrl(`/api/users/${encodeURIComponent(userId)}/verify-discord-join`),
         {
           method: 'POST',
           headers: {

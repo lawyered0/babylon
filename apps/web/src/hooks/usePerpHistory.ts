@@ -7,6 +7,7 @@ import {
   usePerpMarketStream,
 } from '@/hooks/usePerpMarketStream';
 import type { MarketTimeRange } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Represents a single point in perpetual market price history.
@@ -271,7 +272,9 @@ export function usePerpHistory(
         params.set('range', range);
       }
       const response = await fetch(
-        `/api/markets/perps/${encodeURIComponent(ticker)}/history?${params.toString()}`
+        apiUrl(
+          `/api/markets/perps/${encodeURIComponent(ticker)}/history?${params.toString()}`
+        )
       );
 
       let data: unknown = null;

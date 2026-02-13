@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { getAuthToken } from '@/lib/auth';
 import type { TradeSide } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 // Re-export for backwards compatibility
 export type { TradeSide } from '@/types/markets';
@@ -152,7 +153,7 @@ export function usePerpTrade(options: UsePerpTradeOptions = {}) {
         headers.set('Authorization', `Bearer ${token}`);
       }
 
-      const response = await fetch(url, {
+      const response = await fetch(apiUrl(url), {
         ...init,
         headers,
       });

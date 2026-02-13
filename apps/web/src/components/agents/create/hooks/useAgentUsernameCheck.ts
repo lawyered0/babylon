@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 export type UsernameStatus =
   | 'available'
@@ -46,7 +47,9 @@ export function useAgentUsernameCheck(
 
     try {
       const response = await fetch(
-        `/api/onboarding/check-username?username=${encodeURIComponent(trimmed)}`
+        apiUrl(
+          `/api/onboarding/check-username?username=${encodeURIComponent(trimmed)}`
+        )
       );
 
       if (response.ok) {

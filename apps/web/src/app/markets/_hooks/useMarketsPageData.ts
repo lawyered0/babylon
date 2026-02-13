@@ -17,6 +17,7 @@ import type {
   PredictionMarketWithPosition,
   PredictionSort,
 } from '@/types/markets';
+import { apiUrl } from '@/utils/api-url';
 
 // ============================================================================
 // Constants
@@ -274,7 +275,7 @@ export function useMarketsPageData(): MarketsPageData {
     const isAuth = authenticatedRef.current;
     const userId = userIdRef.current;
 
-    const url = `/api/markets/predictions${isAuth && userId ? `?userId=${encodeURIComponent(userId)}` : ''}`;
+    const url = apiUrl(`/api/markets/predictions${isAuth && userId ? `?userId=${encodeURIComponent(userId)}` : ''}`);
 
     try {
       const response = await fetch(url, { signal });

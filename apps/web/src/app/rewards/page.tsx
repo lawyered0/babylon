@@ -33,6 +33,7 @@ import { Separator } from '@/components/shared/Separator';
 import { ShareEarnModal } from '@/components/shared/ShareEarnModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
+import { apiUrl } from '@/utils/api-url';
 
 interface ReferredUser {
   id: string;
@@ -153,7 +154,7 @@ export default function RewardsPage() {
     }
 
     const response = await fetch(
-      `/api/users/${encodeURIComponent(user.id)}/referrals`,
+      apiUrl(`/api/users/${encodeURIComponent(user.id)}/referrals`),
       {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -16,6 +16,7 @@ import { retryIfRetryable } from '@babylon/shared';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getAuthToken } from '@/lib/auth';
+import { apiUrl } from '@/utils/api-url';
 
 interface RepostPost {
   id: string;
@@ -109,7 +110,7 @@ async function apiCall<T>(url: string, options: RequestInit = {}): Promise<T> {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(url, {
+      const response = await fetch(apiUrl(url), {
         ...options,
         headers,
       });

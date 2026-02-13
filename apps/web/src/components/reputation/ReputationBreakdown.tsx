@@ -29,6 +29,7 @@
 import { cn } from '@babylon/shared';
 import { Activity, DollarSign, MessageSquare } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Breakdown data structure from API.
@@ -73,7 +74,7 @@ export function ReputationBreakdown({
     const fetchBreakdown = async () => {
       setLoading(true);
       const response = await fetch(
-        `/api/reputation/breakdown/${encodeURIComponent(userId)}`
+        apiUrl(`/api/reputation/breakdown/${encodeURIComponent(userId)}`)
       );
       const data = await response.json();
 

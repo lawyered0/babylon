@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { create } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
+import { apiUrl } from '@/utils/api-url';
 
 interface WalletBalanceState {
   // Data
@@ -96,7 +97,7 @@ export const useWalletBalanceStore = create<WalletBalanceState>((set, get) => ({
 
       try {
         const response = await fetch(
-          `/api/users/${encodeURIComponent(requestedUserId)}/balance`
+          apiUrl(`/api/users/${encodeURIComponent(requestedUserId)}/balance`)
         );
 
         if (!response.ok) {
