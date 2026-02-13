@@ -8,7 +8,7 @@ import {
 import { ArrowUpDown } from 'lucide-react';
 import { memo } from 'react';
 import type { PredictionMarketWithPosition } from '@/types/markets';
-import { calculateSharePercentages, getDaysLeft } from '../../_lib/formatters';
+import { calculateSharePercentages, getDaysLeft } from '@/lib/market-formatters';
 
 interface PredictionMarketCardProps {
   prediction: PredictionMarketWithPosition;

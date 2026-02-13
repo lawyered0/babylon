@@ -3,7 +3,7 @@
 import { cn } from '@babylon/shared';
 import { memo } from 'react';
 import type { PerpMarket } from '@/types/markets';
-import { formatPrice, formatVolume } from '../../_lib/formatters';
+import { formatPrice, formatVolume } from '@/lib/market-formatters';
 
 interface PerpMarketCardProps {
   market: PerpMarket;

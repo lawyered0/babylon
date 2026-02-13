@@ -17,8 +17,8 @@ import {
   AgentSettingsStep,
   AgentSetupModal,
   ProfilePreviewCard,
-} from '@/app/agents/create/components';
-import { useAgentForm } from '@/app/agents/create/hooks';
+} from '@/components/agents/create/components';
+import { useAgentForm } from '@/components/agents/create/hooks';
 import { Skeleton } from '@/components/shared/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useWalletBalance } from '@/hooks/useWalletBalance';

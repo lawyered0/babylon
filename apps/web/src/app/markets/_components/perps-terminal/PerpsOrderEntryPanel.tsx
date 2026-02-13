@@ -22,7 +22,7 @@ import {
   useWalletBalance,
 } from '@/stores/walletBalanceStore';
 import type { PerpMarket } from '@/types/markets';
-import { formatBalance, formatPrice } from '../../_lib/formatters';
+import { formatBalance, formatPrice } from '@/lib/market-formatters';
 
 interface PerpsOrderEntryPanelProps {
   market: PerpMarket | null;

@@ -3,7 +3,7 @@
 import { cn } from '@babylon/shared';
 import { RefreshCw, Wallet } from 'lucide-react';
 import type { PortfolioBreakdownSnapshot } from '@/hooks/usePortfolioPnL';
-import { formatBalance } from '../../_lib/formatters';
+import { formatBalance } from '@/lib/market-formatters';
 
 /**
  * Formats a balance with explicit +/- sign prefix.

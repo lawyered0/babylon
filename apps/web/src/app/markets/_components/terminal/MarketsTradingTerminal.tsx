@@ -82,7 +82,7 @@ import type {
   TradeSide,
 } from '@/types/markets';
 import { MARKET_TIME_RANGES } from '@/types/markets';
-import { formatBalance } from '../../_lib/formatters';
+import { formatBalance } from '@/lib/market-formatters';
 import { PerpsOrderEntryPanel } from '../perps-terminal/PerpsOrderEntryPanel';
 import { TerminalAgentsChat } from './TerminalAgentsChat';
 import { TerminalPortfolio } from './TerminalPortfolio';

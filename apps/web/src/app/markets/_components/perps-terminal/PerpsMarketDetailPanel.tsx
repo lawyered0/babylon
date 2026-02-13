@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/shared/Skeleton';
 import { useMarketPrices } from '@/hooks/useMarketPrices';
 import { usePerpHistory } from '@/hooks/usePerpHistory';
 import type { MarketTimeRange, PerpMarket } from '@/types/markets';
-import { formatPrice, formatVolume } from '../../_lib/formatters';
+import { formatPrice, formatVolume } from '@/lib/market-formatters';
 
 interface PerpsMarketDetailPanelProps {
   market: PerpMarket | null;
