@@ -13,6 +13,7 @@
     "mobile:build": "bun run build && bun run cap:sync",
     "mobile:ios": "bun run mobile:build && bun run cap:ios",
     "mobile:android": "bun run mobile:build && bun run cap:android",
+    "generate:assets": "npx @capacitor/assets generate --iconBackgroundColor '#0a0a0a' --splashBackgroundColor '#0a0a0a' --iconBackgroundColorDark '#0a0a0a' --splashBackgroundColorDark '#0a0a0a'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
