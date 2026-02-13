@@ -1,11 +1,8 @@
 import { getContractAddresses } from '@babylon/contracts';
 import { logger } from '@babylon/shared';
 import { useCallback, useState } from 'react';
-import {
-  buySharesOnchainAction,
-  sellSharesOnchainAction,
-} from '@/app/_actions/onchain';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Result of an on-chain betting transaction.
@@ -25,7 +22,7 @@ const { diamond: DIAMOND_ADDRESS, network: NETWORK } = getContractAddresses();
 /**
  * Hook for on-chain prediction market betting.
  *
- * Uses a server-side sponsored transaction flow (Privy embedded wallet + server actions).
+ * Uses a server-side sponsored transaction flow via the /api/onchain route.
  */
 export function useOnChainBetting() {
   const [loading, setLoading] = useState(false);
@@ -55,13 +52,28 @@ export function useOnChainBetting() {
           throw new Error('Authentication required');
         }
 
-        const { txHash } = await buySharesOnchainAction({
-          marketId,
-          outcome,
-          numShares,
-          userJwt,
+        const response = await fetch(apiUrl('/api/onchain'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userJwt}`,
+          },
+          body: JSON.stringify({
+            action: 'buy-shares',
+            marketId,
+            outcome,
+            numShares,
+          }),
         });
 
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(
+            data.error || `Buy failed: ${response.status}`
+          );
+        }
+
+        const { txHash } = await response.json();
         return { txHash, shares: numShares };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Buy failed';
@@ -97,13 +109,28 @@ export function useOnChainBetting() {
           throw new Error('Authentication required');
         }
 
-        const { txHash } = await sellSharesOnchainAction({
-          marketId,
-          outcome,
-          numShares,
-          userJwt,
+        const response = await fetch(apiUrl('/api/onchain'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userJwt}`,
+          },
+          body: JSON.stringify({
+            action: 'sell-shares',
+            marketId,
+            outcome,
+            numShares,
+          }),
         });
 
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(
+            data.error || `Sell failed: ${response.status}`
+          );
+        }
+
+        const { txHash } = await response.json();
         return { txHash, shares: numShares };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Sell failed';

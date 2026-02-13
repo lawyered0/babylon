@@ -1,7 +1,7 @@
 import { WALLET_ERROR_MESSAGES } from '@babylon/shared';
 import { useCallback } from 'react';
-import { updateAgentProfileOnchainAction } from '@/app/_actions/onchain';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/utils/api-url';
 
 /**
  * Metadata for updating an agent profile on-chain.
@@ -31,7 +31,7 @@ interface UpdateAgentProfileInput {
 /**
  * Hook for updating an agent profile on-chain.
  *
- * Uses a server-side sponsored transaction flow (Privy embedded wallet + server actions).
+ * Uses a server-side sponsored transaction flow via the /api/onchain route.
  */
 export function useUpdateAgentProfileTx() {
   const { embeddedWalletReady, embeddedWalletAddress, getAccessToken } =
@@ -48,11 +48,27 @@ export function useUpdateAgentProfileTx() {
         throw new Error('Authentication required');
       }
 
-      const { txHash } = await updateAgentProfileOnchainAction({
-        metadata,
-        endpoint,
-        userJwt,
+      const response = await fetch(apiUrl('/api/onchain'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userJwt}`,
+        },
+        body: JSON.stringify({
+          action: 'update-agent-profile',
+          metadata,
+          endpoint,
+        }),
       });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data.error || `Update failed: ${response.status}`
+        );
+      }
+
+      const { txHash } = await response.json();
       return txHash;
     },
     [embeddedWalletReady, embeddedWalletAddress, getAccessToken]
