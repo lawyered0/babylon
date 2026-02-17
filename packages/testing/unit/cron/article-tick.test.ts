@@ -33,6 +33,35 @@ interface SqlCondition {
   sql?: string;
 }
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue | undefined };
+
+async function readJsonResponse(
+  res: unknown
+): Promise<{ [key: string]: JsonValue | undefined }> {
+  if (
+    typeof res === 'object' &&
+    res !== null &&
+    'json' in res &&
+    typeof (res as { json: () => unknown }).json === 'function'
+  ) {
+    return (await (res as { json: () => Promise<unknown> }).json()) as {
+      [key: string]: JsonValue | undefined;
+    };
+  }
+
+  if (typeof res === 'object' && res !== null && 'body' in res) {
+    return (res as { body: { [key: string]: JsonValue | undefined } }).body;
+  }
+
+  return {} as { [key: string]: JsonValue | undefined };
+}
+
 // Mock db with a mutable state we can control in tests
 let mockGame: MockGame | null = null;
 let mockArticleCount = 0;
@@ -200,6 +229,7 @@ let POST: (req: NextRequest) => Promise<Response>;
 
 describe('Article Tick Cron', () => {
   beforeAll(async () => {
+    mock.restore();
     registerArticleTickMocks();
     ({ GET, POST } = await import('@/app/api/cron/article-tick/route'));
   });
@@ -225,7 +255,7 @@ describe('Article Tick Cron', () => {
       const res = await POST(req);
 
       expect(res.status).toBe(401);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
       expect(data.error).toBe('Unauthorized cron request');
       expect(data.success).toBeUndefined();
     });
@@ -253,8 +283,8 @@ describe('Article Tick Cron', () => {
       expect(getRes.status).toBe(postRes.status);
 
       // Both should return the same response body
-      const getBody = await getRes.json();
-      const postBody = await postRes.json();
+      const getBody = await readJsonResponse(getRes);
+      const postBody = await readJsonResponse(postRes);
 
       expect(getBody.success).toBe(postBody.success);
       expect(getBody.skipped).toBe(postBody.skipped);
@@ -275,7 +305,7 @@ describe('Article Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       expect(data.success).toBe(true);
       expect(data.skipped).toBe(true);
@@ -294,7 +324,7 @@ describe('Article Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       expect(data.success).toBe(true);
       expect(data.skipped).toBe(true);
@@ -316,7 +346,7 @@ describe('Article Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       expect(data.success).toBe(true);
       expect(data.skipped).toBe(true);
@@ -336,7 +366,7 @@ describe('Article Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       // Positive assertions: handler succeeded and actually processed
       expect(res.status).toBe(200);
@@ -363,7 +393,7 @@ describe('Article Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       // Verify handler succeeded and was not skipped
       expect(res.status).toBe(200);
@@ -371,9 +401,12 @@ describe('Article Tick Cron', () => {
       expect(data.skipped).toBe(false); // Explicit assertion - test fails if skipped
 
       // Rate limit info should always be included when not skipped
-      expect(data.rateLimit).toBeDefined();
-      expect(data.rateLimit.currentCount).toBe(1);
-      expect(data.rateLimit.maxAllowed).toBe(2);
+      const rateLimit = data.rateLimit as
+        | { currentCount?: number; maxAllowed?: number }
+        | undefined;
+      expect(rateLimit).toBeDefined();
+      expect(rateLimit?.currentCount).toBe(1);
+      expect(rateLimit?.maxAllowed).toBe(2);
     });
   });
 });

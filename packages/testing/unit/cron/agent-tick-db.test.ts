@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  test,
+} from 'bun:test';
 import { NextRequest } from 'next/server';
 
 /**
@@ -47,165 +55,224 @@ interface SqlCondition {
   sql?: string;
 }
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue | undefined };
+
+async function readJsonResponse(
+  res: unknown
+): Promise<{ [key: string]: JsonValue | undefined }> {
+  if (
+    typeof res === 'object' &&
+    res !== null &&
+    'json' in res &&
+    typeof (res as { json: () => unknown }).json === 'function'
+  ) {
+    return (await (res as { json: () => Promise<unknown> }).json()) as {
+      [key: string]: JsonValue | undefined;
+    };
+  }
+
+  if (typeof res === 'object' && res !== null && 'body' in res) {
+    return (res as { body: { [key: string]: JsonValue | undefined } }).body;
+  }
+
+  return {} as { [key: string]: JsonValue | undefined };
+}
+
 // Mock db with a mutable state we can control in tests
 let mockGame: MockGame | null = null;
 
-// Create a complete mock that includes schema exports
-mock.module('@babylon/db', () => {
-  const createModelMock = (overrides: Partial<MockModel> = {}): MockModel => ({
-    findFirst: mock(async () => mockGame),
-    findUnique: mock(async () => null),
-    findMany: mock(async () => []),
-    count: mock(async () => 0),
-    create: mock(async () => ({ id: 'mock-id' })),
-    update: mock(async () => ({ id: 'mock-id' })),
-    delete: mock(async () => ({ id: 'mock-id' })),
-    deleteMany: mock(async () => ({ count: 0 })),
-    ...overrides,
+function registerAgentTickDbMocks() {
+  // Create a complete mock that includes schema exports
+  mock.module('@babylon/db', () => {
+    const createModelMock = (
+      overrides: Partial<MockModel> = {}
+    ): MockModel => ({
+      findFirst: mock(async () => mockGame),
+      findUnique: mock(async () => null),
+      findMany: mock(async () => []),
+      count: mock(async () => 0),
+      create: mock(async () => ({ id: 'mock-id' })),
+      update: mock(async () => ({ id: 'mock-id' })),
+      delete: mock(async () => ({ id: 'mock-id' })),
+      deleteMany: mock(async () => ({ count: 0 })),
+      ...overrides,
+    });
+
+    // Mock schema tables as empty objects
+    const mockTable: Record<string, never> = {};
+
+    // Mock Drizzle query builder (chainable and awaitable)
+    const createQueryBuilder = () => {
+      const builder = {
+        set: mock(() => builder),
+        where: mock(() => builder),
+        values: mock(() => builder),
+        from: mock(() => builder),
+        limit: mock(() => builder),
+        returning: mock(async () => [{ id: 'mock-lock-id' }]),
+        onConflictDoNothing: mock(() => builder),
+        // Make the builder awaitable
+        then: <TResult1 = Array<{ id: string }>, TResult2 = never>(
+          onFulfilled?:
+            | ((
+                value: Array<{ id: string }>
+              ) => TResult1 | PromiseLike<TResult1>)
+            | null,
+          onRejected?:
+            | ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
+            | null
+        ): Promise<TResult1 | TResult2> => {
+          return Promise.resolve([{ id: 'mock-lock-id' }]).then(
+            onFulfilled,
+            onRejected
+          );
+        },
+      };
+      return builder;
+    };
+
+    return {
+      db: {
+        game: createModelMock(),
+        user: createModelMock(),
+        $transaction: async <T>(
+          fn: TransactionCallback<T> | Array<Promise<T>>
+        ): Promise<T | T[]> => {
+          if (typeof fn === 'function') return fn({} as MockDb);
+          return Promise.all(fn);
+        },
+        // Core Drizzle methods
+        update: mock(() => createQueryBuilder()),
+        insert: mock(() => createQueryBuilder()),
+        delete: mock(() => createQueryBuilder()),
+        select: mock(() => createQueryBuilder()),
+      },
+      // Schema exports (tables)
+      schema: {},
+      users: mockTable,
+      userAgentConfigs: mockTable,
+      actors: mockTable,
+      posts: mockTable,
+      comments: mockTable,
+      games: mockTable,
+      organizations: mockTable,
+      balanceTransactions: mockTable,
+      pointsTransactions: mockTable,
+      perpPositions: mockTable,
+      poolPositions: mockTable,
+      markets: mockTable,
+      questions: mockTable,
+      generationLocks: mockTable,
+      // Operators
+      eq: (): SqlCondition => ({}),
+      ne: (): SqlCondition => ({}),
+      gt: (): SqlCondition => ({}),
+      gte: (): SqlCondition => ({}),
+      lt: (): SqlCondition => ({}),
+      lte: (): SqlCondition => ({}),
+      and: (): SqlCondition => ({}),
+      or: (): SqlCondition => ({}),
+      not: (): SqlCondition => ({}),
+      inArray: (): SqlCondition => ({}),
+      isNull: (): SqlCondition => ({}),
+      sql: (): SqlCondition => ({}),
+      desc: (): SqlCondition => ({}),
+      asc: (): SqlCondition => ({}),
+      // Transaction helpers
+      withTransaction: async <T>(
+        fn: (tx: MockDb) => Promise<T>
+      ): Promise<T> => fn({} as MockDb),
+      asUser: async <T>(
+        _userId: string,
+        fn: (db: MockDb) => Promise<T>
+      ): Promise<T> => fn({} as MockDb),
+      asSystem: async <T>(fn: (db: MockDb) => Promise<T>): Promise<T> =>
+        fn({} as MockDb),
+      asPublic: async <T>(fn: (db: MockDb) => Promise<T>): Promise<T> =>
+        fn({} as MockDb),
+    };
   });
 
-  // Mock schema tables as empty objects
-  const mockTable: Record<string, never> = {};
-
-  // Mock Drizzle query builder (chainable and awaitable)
-  const createQueryBuilder = () => {
-    const builder = {
-      set: mock(() => builder),
-      where: mock(() => builder),
-      values: mock(() => builder),
-      from: mock(() => builder),
-      limit: mock(() => builder),
-      returning: mock(async () => [{ id: 'mock-lock-id' }]),
-      onConflictDoNothing: mock(() => builder),
-      // Make the builder awaitable
-      then: <TResult1 = Array<{ id: string }>, TResult2 = never>(
-        onFulfilled?:
-          | ((value: Array<{ id: string }>) => TResult1 | PromiseLike<TResult1>)
-          | null,
-        onRejected?:
-          | ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
-          | null
-      ): Promise<TResult1 | TResult2> => {
-        return Promise.resolve([{ id: 'mock-lock-id' }]).then(
-          onFulfilled,
-          onRejected
-        );
-      },
-    };
-    return builder;
-  };
-
-  return {
-    db: {
-      game: createModelMock(),
-      user: createModelMock(),
-      $transaction: async <T>(
-        fn: TransactionCallback<T> | Array<Promise<T>>
-      ): Promise<T | T[]> => {
-        if (typeof fn === 'function') return fn({} as MockDb);
-        return Promise.all(fn);
-      },
-      // Core Drizzle methods
-      update: mock(() => createQueryBuilder()),
-      insert: mock(() => createQueryBuilder()),
-      delete: mock(() => createQueryBuilder()),
-      select: mock(() => createQueryBuilder()),
+  mock.module('@babylon/agents', () => ({
+    AgentStatus: {
+      ACTIVE: 'ACTIVE',
+      INITIALIZED: 'INITIALIZED',
+      REGISTERED: 'REGISTERED',
     },
-    // Schema exports (tables)
-    schema: {},
-    users: mockTable,
-    actors: mockTable,
-    posts: mockTable,
-    comments: mockTable,
-    games: mockTable,
-    organizations: mockTable,
-    balanceTransactions: mockTable,
-    pointsTransactions: mockTable,
-    perpPositions: mockTable,
-    poolPositions: mockTable,
-    markets: mockTable,
-    questions: mockTable,
-    generationLocks: mockTable,
-    // Operators
-    eq: (): SqlCondition => ({}),
-    ne: (): SqlCondition => ({}),
-    gt: (): SqlCondition => ({}),
-    gte: (): SqlCondition => ({}),
-    lt: (): SqlCondition => ({}),
-    lte: (): SqlCondition => ({}),
-    and: (): SqlCondition => ({}),
-    or: (): SqlCondition => ({}),
-    not: (): SqlCondition => ({}),
-    inArray: (): SqlCondition => ({}),
-    isNull: (): SqlCondition => ({}),
-    sql: (): SqlCondition => ({}),
-    desc: (): SqlCondition => ({}),
-    asc: (): SqlCondition => ({}),
-    // Transaction helpers
-    withTransaction: async <T>(fn: (tx: MockDb) => Promise<T>): Promise<T> =>
-      fn({} as MockDb),
-    asUser: async <T>(
-      _userId: string,
-      fn: (db: MockDb) => Promise<T>
-    ): Promise<T> => fn({} as MockDb),
-    asSystem: async <T>(fn: (db: MockDb) => Promise<T>): Promise<T> =>
-      fn({} as MockDb),
-    asPublic: async <T>(fn: (db: MockDb) => Promise<T>): Promise<T> =>
-      fn({} as MockDb),
-  };
-});
-
-mock.module('@babylon/agents/services/agent-registry.service', () => ({
-  agentRegistry: {
-    discoverAgents: async () => [],
-  },
-}));
-
-mock.module('@babylon/agents/services/agent-lock-service', () => ({
-  acquireAgentLock: async () => true,
-  releaseAgentLock: async () => {},
-}));
-
-// Mock other services to avoid errors if they are imported
-mock.module('@babylon/agents/runtime/AgentRuntimeManager', () => ({
-  agentRuntimeManager: {
-    getRuntime: async () => ({}),
-  },
-}));
-
-mock.module('@babylon/agents/services/AgentService', () => ({
-  agentService: {
-    deductPoints: async () => {},
-    createLog: async () => {},
-  },
-}));
-
-mock.module('@babylon/agents/autonomous', () => ({
-  autonomousCoordinator: {
-    executeAutonomousTick: async () => ({
-      success: true,
-      method: 'test',
-      actionsExecuted: {
-        trades: 0,
-        posts: 0,
-        comments: 0,
-        messages: 0,
-        groupMessages: 0,
-      },
+    AgentType: {
+      USER_CONTROLLED: 'USER_CONTROLLED',
+    },
+    agentRegistry: {
+      discoverAgents: async () => [],
+    },
+    acquireAgentLock: async () => true,
+    releaseAgentLock: async () => {},
+    agentRuntimeManager: {
+      getRuntime: async () => ({}),
+    },
+    agentService: {
+      deductPoints: async () => {},
+      createLog: async () => {},
+    },
+    autonomousCoordinator: {
+      executeAutonomousTick: async () => ({
+        success: true,
+        method: 'test',
+        actionsExecuted: {
+          trades: 0,
+          posts: 0,
+          comments: 0,
+          messages: 0,
+          groupMessages: 0,
+        },
+      }),
+    },
+    hasAnyAutonomousFeature: () => false,
+    getAutonomousFeatures: () => ({
+      canTrade: false,
+      canPost: false,
+      canComment: false,
+      canMessage: false,
+      canGroupChat: false,
     }),
-  },
-}));
+  }));
 
-mock.module('@babylon/api/services/cron-relay-service', () => ({
-  relayCronToStaging: async () => ({ forwarded: false }),
-}));
+  mock.module('@babylon/api', () => ({
+    verifyCronAuth: () => true,
+    relayCronToStaging: async () => ({ forwarded: false }),
+    recordCronExecution: () => {},
+    DistributedLockService: {
+      acquireLock: async () => true,
+      releaseLock: async () => {},
+    },
+  }));
 
-// Import the route handler after mocks are set up
-import { POST } from '@/app/api/cron/agent-tick/route';
+  mock.module('@/lib/engine/ensure-engine-services', () => ({
+    ensureEngineServices: () => {},
+  }));
+}
+
+let POST: (req: NextRequest) => Promise<Response>;
 
 describe('Agent Tick Cron - DB State', () => {
+  beforeAll(async () => {
+    mock.restore();
+    registerAgentTickDbMocks();
+    ({ POST } = await import('@/app/api/cron/agent-tick/route'));
+  });
+
   beforeEach(() => {
     mockGame = null;
+  });
+
+  afterAll(() => {
+    mock.restore();
   });
 
   test('should be skipped when no continuous game exists', async () => {
@@ -215,7 +282,7 @@ describe('Agent Tick Cron - DB State', () => {
       method: 'POST',
     });
     const res = await POST(req);
-    const data = await res.json();
+    const data = await readJsonResponse(res);
 
     expect(data.success).toBe(true);
     expect(data.skipped).toBe(true);
@@ -233,7 +300,7 @@ describe('Agent Tick Cron - DB State', () => {
       method: 'POST',
     });
     const res = await POST(req);
-    const data = await res.json();
+    const data = await readJsonResponse(res);
 
     expect(data.success).toBe(true);
     expect(data.skipped).toBe(true);
@@ -252,7 +319,7 @@ describe('Agent Tick Cron - DB State', () => {
       method: 'POST',
     });
     const res = await POST(req);
-    const data = await res.json();
+    const data = await readJsonResponse(res);
 
     expect(data.skipped).toBeUndefined();
     expect(data.success).toBe(true);

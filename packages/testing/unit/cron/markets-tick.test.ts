@@ -43,6 +43,35 @@ interface SqlCondition {
   sql?: string;
 }
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue | undefined };
+
+async function readJsonResponse(
+  res: unknown
+): Promise<{ [key: string]: JsonValue | undefined }> {
+  if (
+    typeof res === 'object' &&
+    res !== null &&
+    'json' in res &&
+    typeof (res as { json: () => unknown }).json === 'function'
+  ) {
+    return (await (res as { json: () => Promise<unknown> }).json()) as {
+      [key: string]: JsonValue | undefined;
+    };
+  }
+
+  if (typeof res === 'object' && res !== null && 'body' in res) {
+    return (res as { body: { [key: string]: JsonValue | undefined } }).body;
+  }
+
+  return {} as { [key: string]: JsonValue | undefined };
+}
+
 // Mock db with a mutable state we can control in tests
 let mockGame: MockGame | null = null;
 let mockActiveQuestions: MockQuestion[] = [];
@@ -62,6 +91,8 @@ let currentQueryTable: string | null = null;
 // Table reference symbols for detection
 const TABLE_REFS = {
   games: { _tableName: 'games' },
+  users: { _tableName: 'users' },
+  userAgentConfigs: { _tableName: 'userAgentConfigs' },
   questions: {
     _tableName: 'questions',
     status: 'status',
@@ -82,6 +113,10 @@ const getTableData = (): unknown => {
     case 'questions':
       // Return active questions by default; mature questions handled via where clause
       return mockActiveQuestions;
+    case 'users':
+      return [];
+    case 'userAgentConfigs':
+      return [];
     case 'worldEvents':
       return mockWorldEvents;
     case 'timeframedMarkets':
@@ -188,6 +223,8 @@ function registerMarketsTickMocks() {
       ),
     },
     games: TABLE_REFS.games,
+    users: TABLE_REFS.users,
+    userAgentConfigs: TABLE_REFS.userAgentConfigs,
     questions: TABLE_REFS.questions,
     timeframedMarkets: TABLE_REFS.timeframedMarkets,
     worldEvents: TABLE_REFS.worldEvents,
@@ -196,6 +233,7 @@ function registerMarketsTickMocks() {
     gte: (): SqlCondition => ({}),
     lte: (): SqlCondition => ({}),
     and: (): SqlCondition => ({}),
+    inArray: (): SqlCondition => ({}),
     desc: (): SqlCondition => ({}),
     isNull: (): SqlCondition => ({}),
     isNotNull: (): SqlCondition => ({}),
@@ -390,6 +428,7 @@ let POST: (req: NextRequest) => Promise<Response>;
 
 describe('Markets Tick Cron', () => {
   beforeAll(async () => {
+    mock.restore();
     registerMarketsTickMocks();
     ({ GET, POST } = await import('@/app/api/cron/markets-tick/route'));
   });
@@ -429,8 +468,8 @@ describe('Markets Tick Cron', () => {
       // GET should delegate to POST, so responses should match
       expect(getRes.status).toBe(postRes.status);
 
-      const getData = await getRes.json();
-      const postData = await postRes.json();
+      const getData = await readJsonResponse(getRes);
+      const postData = await readJsonResponse(postRes);
 
       // Key response properties should be equivalent
       expect(getData.success).toBe(postData.success);
@@ -476,7 +515,7 @@ describe('Markets Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       // Should indicate lock failure/skip (route returns "Previous tick still running")
       expect(res.status).toBe(200);
@@ -499,7 +538,7 @@ describe('Markets Tick Cron', () => {
         method: 'POST',
       });
       const res = await POST(req);
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       expect(data.success).toBe(true);
       expect(data.skipped).toBe(true);
