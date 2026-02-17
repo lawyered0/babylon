@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { NextRequest } from 'next/server';
 
 /**
@@ -174,6 +174,10 @@ mock.module('@babylon/engine', () => ({
     ],
   },
   secureRandom: () => Math.random(),
+  persistArticle: async () => ({
+    success: true,
+    articleId: `mock-article-${Date.now()}`,
+  }),
   worldFactsService: {
     generatePromptContext: async () => 'Test world facts context',
   },
@@ -184,13 +188,18 @@ mock.module('@babylon/engine', () => ({
 // polluting module cache and breaking other tests that use formatCurrency, etc.
 
 // Import the route handler after mocks are set up
-import { GET, POST } from '@/app/api/cron/article-tick/route';
+const { GET, POST } = await import('@/app/api/cron/article-tick/route');
 
 describe('Article Tick Cron', () => {
   beforeEach(() => {
     mockGame = null;
     mockArticleCount = 0;
     mockCronAuthResult = true;
+  });
+
+  afterAll(() => {
+    // Prevent module mock leakage into unrelated test files.
+    mock.restore();
   });
 
   describe('Authorization', () => {

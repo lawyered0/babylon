@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { NextRequest } from 'next/server';
 
 /**
@@ -204,6 +204,12 @@ mock.module('@babylon/db', () => ({
 
 // Mock @babylon/api - uses mutable state for auth/lock results
 mock.module('@babylon/api', () => ({
+  CACHE_KEYS: {
+    ACTIVE_MARKETS: 'active-markets',
+  },
+  DEFAULT_TTLS: {
+    ACTIVE_MARKETS: 60,
+  },
   verifyCronAuth: () => mockCronAuthResult,
   relayCronToStaging: async () => ({ forwarded: false }),
   getCacheOrFetch: async <T>(_key: string, fn: () => Promise<T>) => {
@@ -218,6 +224,7 @@ mock.module('@babylon/api', () => ({
     }
     return fn();
   },
+  invalidateCache: async () => {},
   recordCronExecution: () => {},
   DistributedLockService: {
     acquireLock: async () => mockAcquireLockResult,
@@ -235,6 +242,14 @@ mock.module('@babylon/core/markets/prediction', () => ({
 
 // Mock @babylon/engine
 mock.module('@babylon/engine', () => ({
+  isEligibleActor: () => true,
+  mapGranularToDbTimeframe: (timeframe: string) => {
+    if (timeframe === '15m' || timeframe === '30m') return 'flash';
+    if (timeframe === '1h' || timeframe === '6h' || timeframe === '12h')
+      return 'intraday';
+    if (timeframe === '1d') return 'daily';
+    return 'weekly';
+  },
   BabylonLLMClient: class MockBabylonLLMClient {
     static forGameTick() {
       return new MockBabylonLLMClient();
@@ -304,13 +319,15 @@ mock.module('@babylon/engine', () => ({
       createdAt: new Date(),
     }),
   },
+  secureRandom: () => Math.random(),
+  weightedPick: <T>(items: T[]) => items[0],
 }));
 
 // Note: @babylon/shared is NOT mocked - let real logger run to avoid
 // polluting module cache and breaking other tests that use formatCurrency, etc.
 
 // Import the route handler after mocks are set up
-import { GET, POST } from '@/app/api/cron/markets-tick/route';
+const { GET, POST } = await import('@/app/api/cron/markets-tick/route');
 
 describe('Markets Tick Cron', () => {
   beforeEach(() => {
@@ -320,6 +337,11 @@ describe('Markets Tick Cron', () => {
     mockCronAuthResult = true;
     mockAcquireLockResult = true;
     currentQueryTable = null;
+  });
+
+  afterAll(() => {
+    // Prevent module mock leakage into unrelated test files.
+    mock.restore();
   });
 
   describe('Authorization', () => {
