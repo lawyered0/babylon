@@ -1,4 +1,12 @@
-import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  test,
+} from 'bun:test';
 import { NextRequest } from 'next/server';
 
 /**
@@ -60,137 +68,142 @@ const createQueryBuilder = (
   return builder;
 };
 
-// Mock @babylon/db - uses resultFn pattern for dynamic state evaluation
-mock.module('@babylon/db', () => ({
-  db: {
-    select: mock(() => createQueryBuilder(() => (mockGame ? [mockGame] : []))),
-    insert: mock(() =>
-      createQueryBuilder(() => [{ id: `mock-${Date.now()}` }])
-    ),
-    update: mock(() => createQueryBuilder(() => [{ id: 'mock-updated' }])),
-    delete: mock(() => createQueryBuilder(() => [{ id: 'mock-deleted' }])),
-  },
-  games: {},
-  posts: { type: 'type', timestamp: 'timestamp', deletedAt: 'deletedAt' },
-  eq: (): SqlCondition => ({}),
-  gte: (): SqlCondition => ({}),
-  and: (): SqlCondition => ({}),
-  isNull: (): SqlCondition => ({}),
-  sql: (): SqlCondition => ({}),
-  // Use real generateSnowflakeId from @babylon/shared to avoid polluting other tests
-  generateSnowflakeId: async () => {
-    const { generateSnowflakeId } = await import('@babylon/shared');
-    return generateSnowflakeId();
-  },
-}));
-
-// Mock @babylon/api - uses mutable state for auth and game cache
-mock.module('@babylon/api', () => ({
-  verifyCronAuth: () => mockCronAuthResult,
-  relayCronToStaging: async () => ({ forwarded: false }),
-  getCacheOrFetch: async <T>(_key: string, fn: () => Promise<T>) => {
-    // For game state cache, return our mockGame
-    if (_key === 'continuous-game') {
-      return mockGame as T;
-    }
-    return fn();
-  },
-  recordCronExecution: () => {},
-  DistributedLockService: {
-    acquireLock: async () => true,
-    releaseLock: async () => {},
-  },
-}));
-
-// Mock @babylon/engine - articleRateLimiter uses mockArticleCount
-mock.module('@babylon/engine', () => ({
-  articleRateLimiter: {
-    canGenerateArticle: async () => ({
-      allowed: mockArticleCount < 2,
-      currentCount: mockArticleCount,
-      maxAllowed: 2,
-      remaining: Math.max(0, 2 - mockArticleCount),
-    }),
-  },
-  ArticleGenerator: class {
-    generateArticleForQuestion = async () => ({
-      // Complete Article interface with all required fields
-      id: `mock-article-${Date.now()}`,
-      title: 'Test Article',
-      summary: 'Test summary',
-      content: 'Test content that is long enough to pass validation. '.repeat(
-        20
+function registerArticleTickMocks() {
+  // Mock @babylon/db - uses resultFn pattern for dynamic state evaluation
+  mock.module('@babylon/db', () => ({
+    db: {
+      select: mock(() =>
+        createQueryBuilder(() => (mockGame ? [mockGame] : []))
       ),
-      authorOrgId: 'org-1',
-      authorOrgName: 'Test News',
-      byline: 'Test Author',
-      bylineActorId: 'actor-1',
-      biasScore: 0,
-      sentiment: 'neutral' as const,
-      slant: 'Neutral coverage',
-      relatedEventId: 'event-1',
-      relatedActorIds: [],
-      relatedOrgIds: ['org-1'],
-      category: 'news',
-      tags: ['test', 'article'],
-      publishedAt: new Date(),
-    });
-  },
-  BabylonLLMClient: {
-    forGameTick: () => ({
-      generateJSON: async () => ({
+      insert: mock(() =>
+        createQueryBuilder(() => [{ id: `mock-${Date.now()}` }])
+      ),
+      update: mock(() => createQueryBuilder(() => [{ id: 'mock-updated' }])),
+      delete: mock(() => createQueryBuilder(() => [{ id: 'mock-deleted' }])),
+    },
+    games: {},
+    posts: { type: 'type', timestamp: 'timestamp', deletedAt: 'deletedAt' },
+    eq: (): SqlCondition => ({}),
+    gte: (): SqlCondition => ({}),
+    and: (): SqlCondition => ({}),
+    isNull: (): SqlCondition => ({}),
+    sql: (): SqlCondition => ({}),
+    // Use real generateSnowflakeId from @babylon/shared to avoid polluting other tests
+    generateSnowflakeId: async () => {
+      const { generateSnowflakeId } = await import('@babylon/shared');
+      return generateSnowflakeId();
+    },
+  }));
+
+  // Mock @babylon/api - uses mutable state for auth and game cache
+  mock.module('@babylon/api', () => ({
+    verifyCronAuth: () => mockCronAuthResult,
+    relayCronToStaging: async () => ({ forwarded: false }),
+    getCacheOrFetch: async <T>(_key: string, fn: () => Promise<T>) => {
+      // For game state cache, return our mockGame
+      if (_key === 'continuous-game') {
+        return mockGame as T;
+      }
+      return fn();
+    },
+    recordCronExecution: () => {},
+    DistributedLockService: {
+      acquireLock: async () => true,
+      releaseLock: async () => {},
+    },
+  }));
+
+  // Mock @babylon/engine - articleRateLimiter uses mockArticleCount
+  mock.module('@babylon/engine', () => ({
+    articleRateLimiter: {
+      canGenerateArticle: async () => ({
+        allowed: mockArticleCount < 2,
+        currentCount: mockArticleCount,
+        maxAllowed: 2,
+        remaining: Math.max(0, 2 - mockArticleCount),
+      }),
+    },
+    ArticleGenerator: class {
+      generateArticleForQuestion = async () => ({
+        // Complete Article interface with all required fields
+        id: `mock-article-${Date.now()}`,
         title: 'Test Article',
         summary: 'Test summary',
-        article: 'Test article body',
+        content: 'Test content that is long enough to pass validation. '.repeat(
+          20
+        ),
+        authorOrgId: 'org-1',
+        authorOrgName: 'Test News',
+        byline: 'Test Author',
+        bylineActorId: 'actor-1',
+        biasScore: 0,
+        sentiment: 'neutral' as const,
+        slant: 'Neutral coverage',
+        relatedEventId: 'event-1',
+        relatedActorIds: [],
+        relatedOrgIds: ['org-1'],
+        category: 'news',
+        tags: ['test', 'article'],
+        publishedAt: new Date(),
+      });
+    },
+    BabylonLLMClient: {
+      forGameTick: () => ({
+        generateJSON: async () => ({
+          title: 'Test Article',
+          summary: 'Test summary',
+          article: 'Test article body',
+        }),
       }),
+    },
+    generateArticleImageWithRetry: async () => null,
+    getActiveEventsForPosting: async () => ({ activeEvents: [] }),
+    hasEventBeenCovered: () => false,
+    markEventAsCovered: () => {},
+    StaticDataRegistry: {
+      getOrganizationsByType: () => [
+        {
+          id: 'org-1',
+          name: 'Test News',
+          description: 'A news org',
+          type: 'media',
+          canBeInvolved: true,
+        },
+      ],
+      getTopActors: () => [
+        {
+          id: 'actor-1',
+          name: 'Test Actor',
+          description: 'A test actor',
+          domain: ['tech'],
+          affiliations: [],
+          postExample: [],
+          initialLuck: 'medium',
+          initialMood: 0,
+          isTest: true,
+        },
+      ],
+    },
+    secureRandom: () => Math.random(),
+    persistArticle: async () => ({
+      success: true,
+      articleId: `mock-article-${Date.now()}`,
     }),
-  },
-  generateArticleImageWithRetry: async () => null,
-  getActiveEventsForPosting: async () => ({ activeEvents: [] }),
-  hasEventBeenCovered: () => false,
-  markEventAsCovered: () => {},
-  StaticDataRegistry: {
-    getOrganizationsByType: () => [
-      {
-        id: 'org-1',
-        name: 'Test News',
-        description: 'A news org',
-        type: 'media',
-        canBeInvolved: true,
-      },
-    ],
-    getTopActors: () => [
-      {
-        id: 'actor-1',
-        name: 'Test Actor',
-        description: 'A test actor',
-        domain: ['tech'],
-        affiliations: [],
-        postExample: [],
-        initialLuck: 'medium',
-        initialMood: 0,
-        isTest: true,
-      },
-    ],
-  },
-  secureRandom: () => Math.random(),
-  persistArticle: async () => ({
-    success: true,
-    articleId: `mock-article-${Date.now()}`,
-  }),
-  worldFactsService: {
-    generatePromptContext: async () => 'Test world facts context',
-  },
-}));
+    worldFactsService: {
+      generatePromptContext: async () => 'Test world facts context',
+    },
+  }));
+}
 
-// Mock @babylon/shared
-// Note: @babylon/shared is NOT mocked - let real logger run to avoid
-// polluting module cache and breaking other tests that use formatCurrency, etc.
-
-// Import the route handler after mocks are set up
-const { GET, POST } = await import('@/app/api/cron/article-tick/route');
+let GET: (req: NextRequest) => Promise<Response>;
+let POST: (req: NextRequest) => Promise<Response>;
 
 describe('Article Tick Cron', () => {
+  beforeAll(async () => {
+    registerArticleTickMocks();
+    ({ GET, POST } = await import('@/app/api/cron/article-tick/route'));
+  });
+
   beforeEach(() => {
     mockGame = null;
     mockArticleCount = 0;

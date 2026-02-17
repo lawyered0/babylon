@@ -1,4 +1,12 @@
-import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  test,
+} from 'bun:test';
 import { NextRequest } from 'next/server';
 
 /**
@@ -143,193 +151,249 @@ const createMutationBuilder = (operation: 'insert' | 'update' | 'delete') => {
   });
 };
 
-// Mock @babylon/db - table-aware query handling
-mock.module('@babylon/db', () => ({
-  db: {
-    select: mock((columns?: Record<string, unknown>) => {
-      // Reset table tracking for new query
-      currentQueryTable = null;
-      // If selecting specific columns (like MAX), handle specially
-      if (columns && 'maxNumber' in columns) {
-        // This is the getNextQuestionNumber query
-        return createQueryBuilder(() => {
-          const maxNum = mockActiveQuestions.reduce(
-            (max, q) => Math.max(max, q.questionNumber),
-            0
-          );
-          return [{ maxNumber: maxNum > 0 ? maxNum : null }];
-        });
-      }
-      return createQueryBuilder(() => getTableData());
+function registerMarketsTickMocks() {
+  // Mock @babylon/db - table-aware query handling
+  mock.module('@babylon/db', () => ({
+    db: {
+      select: mock((columns?: Record<string, unknown>) => {
+        // Reset table tracking for new query
+        currentQueryTable = null;
+        // If selecting specific columns (like MAX), handle specially
+        if (columns && 'maxNumber' in columns) {
+          // This is the getNextQuestionNumber query
+          return createQueryBuilder(() => {
+            const maxNum = mockActiveQuestions.reduce(
+              (max, q) => Math.max(max, q.questionNumber),
+              0
+            );
+            return [{ maxNumber: maxNum > 0 ? maxNum : null }];
+          });
+        }
+        return createQueryBuilder(() => getTableData());
+      }),
+      insert: createMutationBuilder('insert'),
+      update: createMutationBuilder('update'),
+      delete: createMutationBuilder('delete'),
+      transaction: mock(
+        async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
+          // Create a transaction context that mirrors the db interface
+          const tx = {
+            select: mock(() => createQueryBuilder(() => getTableData())),
+            insert: createMutationBuilder('insert'),
+            update: createMutationBuilder('update'),
+            delete: createMutationBuilder('delete'),
+          };
+          return callback(tx);
+        }
+      ),
+    },
+    games: TABLE_REFS.games,
+    questions: TABLE_REFS.questions,
+    timeframedMarkets: TABLE_REFS.timeframedMarkets,
+    worldEvents: TABLE_REFS.worldEvents,
+    posts: TABLE_REFS.posts,
+    eq: (): SqlCondition => ({}),
+    gte: (): SqlCondition => ({}),
+    lte: (): SqlCondition => ({}),
+    and: (): SqlCondition => ({}),
+    desc: (): SqlCondition => ({}),
+    isNull: (): SqlCondition => ({}),
+    isNotNull: (): SqlCondition => ({}),
+    sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
+      sql: strings.join('?'),
+      values,
     }),
-    insert: createMutationBuilder('insert'),
-    update: createMutationBuilder('update'),
-    delete: createMutationBuilder('delete'),
-    transaction: mock(
-      async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
-        // Create a transaction context that mirrors the db interface
-        const tx = {
-          select: mock(() => createQueryBuilder(() => getTableData())),
-          insert: createMutationBuilder('insert'),
-          update: createMutationBuilder('update'),
-          delete: createMutationBuilder('delete'),
+    max: (col: unknown) => ({ _aggregation: 'max', column: col }),
+    // Use real generateSnowflakeId from @babylon/shared to avoid polluting other tests
+    generateSnowflakeId: async () => {
+      const { generateSnowflakeId } = await import('@babylon/shared');
+      return generateSnowflakeId();
+    },
+  }));
+
+  // Mock @babylon/api - uses mutable state for auth/lock results
+  mock.module('@babylon/api', () => ({
+    CACHE_KEYS: {
+      ACTIVE_MARKETS: 'active-markets',
+    },
+    DEFAULT_TTLS: {
+      ACTIVE_MARKETS: 60,
+    },
+    verifyCronAuth: () => mockCronAuthResult,
+    relayCronToStaging: async () => ({ forwarded: false }),
+    getCacheOrFetch: async <T>(_key: string, fn: () => Promise<T>) => {
+      // For game state cache, return our mockGame or a default non-running game
+      if (_key.includes('game-state')) {
+        return (mockGame || {
+          id: 'continuous',
+          isRunning: false,
+          isContinuous: true,
+          currentDay: 1,
+        }) as T;
+      }
+      return fn();
+    },
+    invalidateCache: async () => {},
+    recordCronExecution: () => {},
+    DistributedLockService: {
+      acquireLock: async () => mockAcquireLockResult,
+      releaseLock: async () => {},
+    },
+  }));
+
+  // Mock @babylon/core/markets/prediction
+  mock.module('@babylon/core/markets/prediction', () => ({
+    PredictionDbAdapter: class {},
+    PredictionMarketService: class {
+      ensureMarketExists = async () => ({ id: 'mock-market-id' });
+    },
+  }));
+
+  // Mock @babylon/engine
+  mock.module('@babylon/engine', () => ({
+    isEligibleActor: () => true,
+    mapGranularToDbTimeframe: (timeframe: string) => {
+      if (timeframe === '15m' || timeframe === '30m') return 'flash';
+      if (timeframe === '1h' || timeframe === '6h' || timeframe === '12h')
+        return 'intraday';
+      if (timeframe === '1d') return 'daily';
+      return 'weekly';
+    },
+    BabylonLLMClient: class MockBabylonLLMClient {
+      static forGameTick() {
+        return new MockBabylonLLMClient();
+      }
+      async generateJSON() {
+        return {
+          text: 'Will AIlon Musk launch a new product?',
+          expectedOutcome: true,
+          resolutionCriteria: 'Product launch announcement',
+          affiliatedActorIds: [],
+          affiliatedOrgIds: [],
         };
-        return callback(tx);
       }
-    ),
-  },
-  games: TABLE_REFS.games,
-  questions: TABLE_REFS.questions,
-  timeframedMarkets: TABLE_REFS.timeframedMarkets,
-  worldEvents: TABLE_REFS.worldEvents,
-  posts: TABLE_REFS.posts,
-  eq: (): SqlCondition => ({}),
-  gte: (): SqlCondition => ({}),
-  lte: (): SqlCondition => ({}),
-  and: (): SqlCondition => ({}),
-  desc: (): SqlCondition => ({}),
-  isNull: (): SqlCondition => ({}),
-  isNotNull: (): SqlCondition => ({}),
-  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
-    sql: strings.join('?'),
-    values,
-  }),
-  max: (col: unknown) => ({ _aggregation: 'max', column: col }),
-  // Use real generateSnowflakeId from @babylon/shared to avoid polluting other tests
-  generateSnowflakeId: async () => {
-    const { generateSnowflakeId } = await import('@babylon/shared');
-    return generateSnowflakeId();
-  },
-}));
-
-// Mock @babylon/api - uses mutable state for auth/lock results
-mock.module('@babylon/api', () => ({
-  CACHE_KEYS: {
-    ACTIVE_MARKETS: 'active-markets',
-  },
-  DEFAULT_TTLS: {
-    ACTIVE_MARKETS: 60,
-  },
-  verifyCronAuth: () => mockCronAuthResult,
-  relayCronToStaging: async () => ({ forwarded: false }),
-  getCacheOrFetch: async <T>(_key: string, fn: () => Promise<T>) => {
-    // For game state cache, return our mockGame or a default non-running game
-    if (_key.includes('game-state')) {
-      return (mockGame || {
-        id: 'continuous',
-        isRunning: false,
-        isContinuous: true,
-        currentDay: 1,
-      }) as T;
-    }
-    return fn();
-  },
-  invalidateCache: async () => {},
-  recordCronExecution: () => {},
-  DistributedLockService: {
-    acquireLock: async () => mockAcquireLockResult,
-    releaseLock: async () => {},
-  },
-}));
-
-// Mock @babylon/core/markets/prediction
-mock.module('@babylon/core/markets/prediction', () => ({
-  PredictionDbAdapter: class {},
-  PredictionMarketService: class {
-    ensureMarketExists = async () => ({ id: 'mock-market-id' });
-  },
-}));
-
-// Mock @babylon/engine
-mock.module('@babylon/engine', () => ({
-  isEligibleActor: () => true,
-  mapGranularToDbTimeframe: (timeframe: string) => {
-    if (timeframe === '15m' || timeframe === '30m') return 'flash';
-    if (timeframe === '1h' || timeframe === '6h' || timeframe === '12h')
-      return 'intraday';
-    if (timeframe === '1d') return 'daily';
-    return 'weekly';
-  },
-  BabylonLLMClient: class MockBabylonLLMClient {
-    static forGameTick() {
-      return new MockBabylonLLMClient();
-    }
-    async generateJSON() {
-      return {
-        text: 'Will AIlon Musk launch a new product?',
-        expectedOutcome: true,
-        resolutionCriteria: 'Product launch announcement',
-        affiliatedActorIds: [],
-        affiliatedOrgIds: [],
-      };
-    }
-  },
-  QuestionManager: class MockQuestionManager {
-    constructor(_llmClient: unknown) {}
-    async generateTimeframeQuestion(_timeframe: string, _durationMs: number) {
-      return {
-        text: 'Will AIlon Musk launch a new product?',
-        expectedOutcome: true,
-        resolutionCriteria: 'Product launch announcement',
-        affiliatedActorIds: [],
-        affiliatedOrgIds: [],
-      };
-    }
-    async generateResolutionWithProof() {
-      return {
-        description: 'The product was launched',
-        confidence: 0.95,
-        requiresManualReview: false,
-        proof: null,
-      };
-    }
-  },
-  publishOracleCommitments: async () => ({ committed: 1 }),
-  publishOracleReveals: async () => ({ revealed: 1 }),
-  resolveQuestionPayouts: async () => {},
-  SignalExtractionService: {
-    extractMarketSignal: async () => ({
-      suggestedOutcome: 'YES',
-      confidence: 0.8,
-      yesSignal: 0.7,
-      noSignal: 0.3,
-      signalStrength: 0.6,
-      totalPosts: 10,
+    },
+    QuestionManager: class MockQuestionManager {
+      constructor(_llmClient: unknown) {}
+      async generateTimeframeQuestion(_timeframe: string, _durationMs: number) {
+        return {
+          text: 'Will AIlon Musk launch a new product?',
+          expectedOutcome: true,
+          resolutionCriteria: 'Product launch announcement',
+          affiliatedActorIds: [],
+          affiliatedOrgIds: [],
+        };
+      }
+      async generateResolutionWithProof() {
+        return {
+          description: 'The product was launched',
+          confidence: 0.95,
+          requiresManualReview: false,
+          proof: null,
+        };
+      }
+    },
+    // Keep article-tick compatible if module mocks collide during combined runs.
+    articleRateLimiter: {
+      canGenerateArticle: async () => ({
+        allowed: true,
+        currentCount: 0,
+        maxAllowed: 2,
+        remaining: 2,
+      }),
+    },
+    ArticleGenerator: class {
+      generateArticleForQuestion = async () => ({
+        id: `mock-article-${Date.now()}`,
+        title: 'Test Article',
+        summary: 'Test summary',
+        content: 'Test content that is long enough to pass validation. '.repeat(
+          20
+        ),
+        authorOrgId: 'org-1',
+        authorOrgName: 'Test News',
+        byline: 'Test Author',
+        bylineActorId: 'actor-1',
+        biasScore: 0,
+        sentiment: 'neutral' as const,
+        slant: 'Neutral coverage',
+        relatedEventId: 'event-1',
+        relatedActorIds: [],
+        relatedOrgIds: ['org-1'],
+        category: 'news',
+        tags: ['test', 'article'],
+        publishedAt: new Date(),
+      });
+    },
+    getActiveEventsForPosting: async () => ({ activeEvents: [] }),
+    hasEventBeenCovered: () => false,
+    markEventAsCovered: () => {},
+    persistArticle: async () => ({
+      success: true,
+      articleId: `mock-article-${Date.now()}`,
     }),
-  },
-  StaticDataRegistry: {
-    getAllActors: () => [],
-    getAllOrganizations: () => [],
-    getActor: () => null,
-    getOrganization: () => null,
-  },
-  timeframeArcPlanner: {
-    planTimeframeArc: () => ({
-      questionId: 'q-1',
-      timeframe: '1d',
-      category: 'daily',
-      outcome: true,
-      durationMs: 86400000,
-      phases: {},
-      phaseOrder: ['setup', 'peak', 'resolution'],
-      insiders: [],
-      deceivers: [],
-      affiliatedOrgIds: [],
-      affiliatedActorIds: [],
-      createdAt: new Date(),
-    }),
-  },
-  secureRandom: () => Math.random(),
-  weightedPick: <T>(items: T[]) => items[0],
-}));
+    worldFactsService: {
+      generatePromptContext: async () => 'Test world facts context',
+    },
+    publishOracleCommitments: async () => ({ committed: 1 }),
+    publishOracleReveals: async () => ({ revealed: 1 }),
+    resolveQuestionPayouts: async () => {},
+    SignalExtractionService: {
+      extractMarketSignal: async () => ({
+        suggestedOutcome: 'YES',
+        confidence: 0.8,
+        yesSignal: 0.7,
+        noSignal: 0.3,
+        signalStrength: 0.6,
+        totalPosts: 10,
+      }),
+    },
+    StaticDataRegistry: {
+      getAllActors: () => [],
+      getAllOrganizations: () => [],
+      getActor: () => null,
+      getOrganization: () => null,
+      getOrganizationsByType: () => [
+        {
+          id: 'org-1',
+          name: 'Test News',
+          description: 'A news org',
+          type: 'media',
+          canBeInvolved: true,
+        },
+      ],
+      getTopActors: () => [],
+    },
+    timeframeArcPlanner: {
+      planTimeframeArc: () => ({
+        questionId: 'q-1',
+        timeframe: '1d',
+        category: 'daily',
+        outcome: true,
+        durationMs: 86400000,
+        phases: {},
+        phaseOrder: ['setup', 'peak', 'resolution'],
+        insiders: [],
+        deceivers: [],
+        affiliatedOrgIds: [],
+        affiliatedActorIds: [],
+        createdAt: new Date(),
+      }),
+    },
+    secureRandom: () => Math.random(),
+    weightedPick: <T>(items: T[]) => items[0],
+  }));
+}
 
-// Note: @babylon/shared is NOT mocked - let real logger run to avoid
-// polluting module cache and breaking other tests that use formatCurrency, etc.
-
-// Import the route handler after mocks are set up
-const { GET, POST } = await import('@/app/api/cron/markets-tick/route');
+let GET: (req: NextRequest) => Promise<Response>;
+let POST: (req: NextRequest) => Promise<Response>;
 
 describe('Markets Tick Cron', () => {
+  beforeAll(async () => {
+    registerMarketsTickMocks();
+    ({ GET, POST } = await import('@/app/api/cron/markets-tick/route'));
+  });
+
   beforeEach(() => {
     mockGame = null;
     mockActiveQuestions = [];
